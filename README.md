@@ -19,10 +19,14 @@ A custom client for the game Cube 2: Sauerbraten.
 - Different color for players using auth.
 - Auto sorry/np.
 - Sorry/np binds (eg
-		/bind g [sayteam (concatword "Sorry for the teamkill " $teamkilled "!")]		
-		and		
-		/bind v [sayteam (concatword "No problem " $teamkiller "!")]		
-		).		
+		```
+		/bind g [sayteam (concatword "Sorry for the teamkill " $teamkilled "!")]
+		```		
+		and
+		```
+		/bind v [sayteam (concatword "No problem " $teamkiller "!")]
+		```		
+		).
 - Colored rifle shot trails.
 - Make rifle shots look like lightning.
 - Highlight ammo when less than a specific amount.
