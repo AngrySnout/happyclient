@@ -1,11 +1,7 @@
 # [happy] Sauerbraten Client V0.5 (Alpha)
-<<<<<<< HEAD
 
 A custom client for the open-source game [Cube 2: Sauerbraten](http://sauerbraten.org/).
 
-=======
-A custom client for the open-source game [Cube 2: Sauerbraten](http://sauerbraten.org/).
->>>>>>> 40cf3138ae460c6f4149bb548cdb71bc2e73510d
 It is designed to be a near perfect client, combining functionality with appearance.
 
 ## Features
