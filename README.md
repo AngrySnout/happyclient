@@ -1,4 +1,0 @@
-happyclient
-===========
-
-[happy] Sauerbraten Client
