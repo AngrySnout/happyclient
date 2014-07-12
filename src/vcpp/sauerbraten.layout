@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_layout_file>
+	<ActiveTarget name="All" />
+	<File name="..\engine\blob.cpp" open="0" top="0" tabpos="4">
+		<Cursor position="17567" topLine="519" />
+	</File>
+	<File name="..\engine\rendermodel.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="167" topLine="0" />
+	</File>
+	<File name="..\fpsgame\collect.h" open="0" top="0" tabpos="2">
+		<Cursor position="30025" topLine="883" />
+	</File>
+	<File name="..\fpsgame\ctf.h" open="0" top="0" tabpos="0">
+		<Cursor position="28530" topLine="868" />
+	</File>
+	<File name="..\fpsgame\weapon.cpp" open="0" top="0" tabpos="1">
+		<Cursor position="1259" topLine="24" />
+	</File>
+	<File name="..\shared\cube.h" open="1" top="1" tabpos="0">
+		<Cursor position="0" topLine="0" />
+	</File>
+</CodeBlocks_layout_file>

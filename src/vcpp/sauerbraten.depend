@@ -1,0 +1,656 @@
+# depslib dependency file v1.0
+1359213376 source:e:\sauerbraten collector edition 2\src\shared\cube.h
+	<math.h>
+	<string.h>
+	<stdio.h>
+	<stdlib.h>
+	<ctype.h>
+	<stdarg.h>
+	<limits.h>
+	<assert.h>
+	<time.h>
+	"windows.h"
+	<eh.h>
+	<dbghelp.h>
+	<SDL.h>
+	<SDL_image.h>
+	<SDL_opengl.h>
+	<enet/enet.h>
+	<zlib.h>
+	"tools.h"
+	"geom.h"
+	"ents.h"
+	"command.h"
+	"iengine.h"
+	"igame.h"
+
+1359213376 e:\sauerbraten collector edition 2\src\include\sdl.h
+	"SDL_main.h"
+	"SDL_stdinc.h"
+	"SDL_audio.h"
+	"SDL_cdrom.h"
+	"SDL_cpuinfo.h"
+	"SDL_endian.h"
+	"SDL_error.h"
+	"SDL_events.h"
+	"SDL_loadso.h"
+	"SDL_mutex.h"
+	"SDL_rwops.h"
+	"SDL_thread.h"
+	"SDL_timer.h"
+	"SDL_video.h"
+	"SDL_version.h"
+	"begin_code.h"
+	"close_code.h"
+
+1359213376 e:\sauerbraten collector edition 2\src\include\sdl_main.h
+	"SDL_stdinc.h"
+	"begin_code.h"
+	"close_code.h"
+	"begin_code.h"
+	"close_code.h"
+
+1359213376 e:\sauerbraten collector edition 2\src\include\sdl_stdinc.h
+	"SDL_config.h"
+	<sys/types.h>
+	<stdio.h>
+	<stdlib.h>
+	<stddef.h>
+	<stdarg.h>
+	<stdlib.h>
+	<malloc.h>
+	<stddef.h>
+	<stdarg.h>
+	<memory.h>
+	<string.h>
+	<strings.h>
+	<inttypes.h>
+	<stdint.h>
+	<ctype.h>
+	<iconv.h>
+	"begin_code.h"
+	<alloca.h>
+	<malloc.h>
+	<malloc.h>
+	<malloc.h>
+	<stdlib.h>
+	"close_code.h"
+
+1359213376 e:\sauerbraten collector edition 2\src\include\sdl_config.h
+	"SDL_platform.h"
+	"SDL_config_dreamcast.h"
+	"SDL_config_macos.h"
+	"SDL_config_macosx.h"
+	"SDL_config_symbian.h"
+	"SDL_config_win32.h"
+	"SDL_config_os2.h"
+	"SDL_config_minimal.h"
+
+1359213376 e:\sauerbraten collector edition 2\src\include\sdl_platform.h
+
+1359213376 e:\sauerbraten collector edition 2\src\include\sdl_config_macosx.h
+	"SDL_platform.h"
+	<AvailabilityMacros.h>
+
+1359213376 e:\sauerbraten collector edition 2\src\include\sdl_config_win32.h
+	"SDL_platform.h"
+
+1359213376 e:\sauerbraten collector edition 2\src\include\begin_code.h
+
+1359213376 e:\sauerbraten collector edition 2\src\include\close_code.h
+
+1359213376 e:\sauerbraten collector edition 2\src\include\sdl_audio.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_endian.h"
+	"SDL_mutex.h"
+	"SDL_thread.h"
+	"SDL_rwops.h"
+	"begin_code.h"
+	"close_code.h"
+
+1359213376 e:\sauerbraten collector edition 2\src\include\sdl_error.h
+	"SDL_stdinc.h"
+	"begin_code.h"
+	"close_code.h"
+
+1359213376 e:\sauerbraten collector edition 2\src\include\sdl_endian.h
+	"SDL_stdinc.h"
+	<endian.h>
+	"begin_code.h"
+	"close_code.h"
+
+1359213376 e:\sauerbraten collector edition 2\src\include\sdl_mutex.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"begin_code.h"
+	"close_code.h"
+
+1359213376 e:\sauerbraten collector edition 2\src\include\sdl_thread.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_mutex.h"
+	"begin_code.h"
+	<process.h>
+	"close_code.h"
+
+1359213376 e:\sauerbraten collector edition 2\src\include\sdl_rwops.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"begin_code.h"
+	"close_code.h"
+
+1359213376 e:\sauerbraten collector edition 2\src\include\sdl_cdrom.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"begin_code.h"
+	"close_code.h"
+
+1359213376 e:\sauerbraten collector edition 2\src\include\sdl_cpuinfo.h
+	"SDL_stdinc.h"
+	"begin_code.h"
+	"close_code.h"
+
+1359213376 e:\sauerbraten collector edition 2\src\include\sdl_events.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_active.h"
+	"SDL_keyboard.h"
+	"SDL_mouse.h"
+	"SDL_joystick.h"
+	"SDL_quit.h"
+	"begin_code.h"
+	"close_code.h"
+
+1359213376 e:\sauerbraten collector edition 2\src\include\sdl_active.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"begin_code.h"
+	"close_code.h"
+
+1359213376 e:\sauerbraten collector edition 2\src\include\sdl_keyboard.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_keysym.h"
+	"begin_code.h"
+	"close_code.h"
+
+1359213376 e:\sauerbraten collector edition 2\src\include\sdl_keysym.h
+
+1359213376 e:\sauerbraten collector edition 2\src\include\sdl_mouse.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_video.h"
+	"begin_code.h"
+	"close_code.h"
+
+1359213376 e:\sauerbraten collector edition 2\src\include\sdl_video.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_rwops.h"
+	"begin_code.h"
+	"close_code.h"
+
+1359213376 e:\sauerbraten collector edition 2\src\include\sdl_joystick.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"begin_code.h"
+	"close_code.h"
+
+1359213376 e:\sauerbraten collector edition 2\src\include\sdl_quit.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+
+1359213376 e:\sauerbraten collector edition 2\src\include\sdl_loadso.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"begin_code.h"
+	"close_code.h"
+
+1359213376 e:\sauerbraten collector edition 2\src\include\sdl_timer.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"begin_code.h"
+	"close_code.h"
+
+1359213376 e:\sauerbraten collector edition 2\src\include\sdl_version.h
+	"SDL_stdinc.h"
+	"begin_code.h"
+	"close_code.h"
+
+1359213376 e:\sauerbraten collector edition 2\src\include\sdl_image.h
+	"SDL.h"
+	"SDL_version.h"
+	"begin_code.h"
+	"close_code.h"
+
+1359213376 e:\sauerbraten collector edition 2\src\include\sdl_opengl.h
+	"SDL_config.h"
+	<windows.h>
+	<OpenGL/gl.h>
+	<OpenGL/glu.h>
+	<gl.h>
+	<glu.h>
+	<GL/gl.h>
+	<GL/glu.h>
+	<windows.h>
+	<stddef.h>
+
+1359213376 e:\sauerbraten collector edition 2\src\enet\include\enet\enet.h
+	<stdlib.h>
+	"enet/win32.h"
+	"enet/unix.h"
+	"enet/types.h"
+	"enet/protocol.h"
+	"enet/list.h"
+	"enet/callbacks.h"
+
+1359213376 e:\sauerbraten collector edition 2\src\enet\include\enet\win32.h
+	<stdlib.h>
+	<winsock2.h>
+
+1359213376 e:\sauerbraten collector edition 2\src\enet\include\enet\unix.h
+	<stdlib.h>
+	<sys/time.h>
+	<sys/types.h>
+	<netinet/in.h>
+	<unistd.h>
+
+1359213376 e:\sauerbraten collector edition 2\src\enet\include\enet\types.h
+
+1359213376 e:\sauerbraten collector edition 2\src\enet\include\enet\protocol.h
+	"enet/types.h"
+
+1359213376 e:\sauerbraten collector edition 2\src\enet\include\enet\list.h
+	<stdlib.h>
+
+1359213376 e:\sauerbraten collector edition 2\src\enet\include\enet\callbacks.h
+	<stdlib.h>
+
+1359213376 e:\sauerbraten collector edition 2\src\include\zlib.h
+	"zconf.h"
+
+1359213376 e:\sauerbraten collector edition 2\src\include\zconf.h
+	<windows.h>
+	<sys/types.h>
+	<unistd.h>
+	<unixio.h>
+
+1359213376 e:\sauerbraten collector edition 2\src\shared\tools.h
+
+1359213376 e:\sauerbraten collector edition 2\src\shared\geom.h
+
+1359213376 e:\sauerbraten collector edition 2\src\shared\ents.h
+
+1359213376 e:\sauerbraten collector edition 2\src\shared\command.h
+
+1359213376 e:\sauerbraten collector edition 2\src\shared\iengine.h
+
+1359213376 e:\sauerbraten collector edition 2\src\shared\igame.h
+
+1359213376 source:e:\sauerbraten collector edition 2\src\fpsgame\game.h
+	"cube.h"
+	"ai.h"
+
+1359213376 e:\sauerbraten collector edition 2\src\shared\cube.h
+	<math.h>
+	<string.h>
+	<stdio.h>
+	<stdlib.h>
+	<ctype.h>
+	<stdarg.h>
+	<limits.h>
+	<assert.h>
+	<time.h>
+	"windows.h"
+	<eh.h>
+	<dbghelp.h>
+	<SDL.h>
+	<SDL_image.h>
+	<SDL_opengl.h>
+	<enet/enet.h>
+	<zlib.h>
+	"tools.h"
+	"geom.h"
+	"ents.h"
+	"command.h"
+	"iengine.h"
+	"igame.h"
+
+1359213376 e:\sauerbraten collector edition 2\src\fpsgame\ai.h
+
+1359213376 source:e:\sauerbraten collector edition 2\src\engine\engine.h
+	"cube.h"
+	"world.h"
+	"octa.h"
+	"lightmap.h"
+	"bih.h"
+	"texture.h"
+	"model.h"
+	"varray.h"
+
+1359213376 e:\sauerbraten collector edition 2\src\engine\world.h
+
+1359213376 e:\sauerbraten collector edition 2\src\engine\octa.h
+
+1359213376 e:\sauerbraten collector edition 2\src\engine\lightmap.h
+
+1359213376 e:\sauerbraten collector edition 2\src\engine\bih.h
+
+1359213376 e:\sauerbraten collector edition 2\src\engine\texture.h
+
+1359213376 e:\sauerbraten collector edition 2\src\engine\model.h
+
+1359213376 e:\sauerbraten collector edition 2\src\engine\varray.h
+
+1359213376 source:e:\sauerbraten collector edition 2\src\engine\blob.cpp
+	"engine.h"
+
+1359213376 e:\sauerbraten collector edition 2\src\engine\engine.h
+	"cube.h"
+	"world.h"
+	"octa.h"
+	"lightmap.h"
+	"bih.h"
+	"texture.h"
+	"model.h"
+	"varray.h"
+
+1359213376 source:e:\sauerbraten collector edition 2\src\engine\client.cpp
+	"engine.h"
+
+1393629032 source:e:\sauerbraten collector edition 2\src\engine\command.cpp
+	"engine.h"
+
+1359213376 source:e:\sauerbraten collector edition 2\src\engine\console.cpp
+	"engine.h"
+	<X11/Xlib.h>
+	<SDL_syswm.h>
+
+1359213376 e:\sauerbraten collector edition 2\src\include\sdl_syswm.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_version.h"
+	"begin_code.h"
+	<X11/Xlib.h>
+	<X11/Xatom.h>
+	<microwin/nano-X.h>
+	<windows.h>
+	<sys/neutrino.h>
+	<Ph.h>
+	"close_code.h"
+
+1359213376 source:e:\sauerbraten collector edition 2\src\engine\cubeloader.cpp
+	"engine.h"
+
+1359213376 source:e:\sauerbraten collector edition 2\src\engine\decal.cpp
+	"engine.h"
+
+1359213376 source:e:\sauerbraten collector edition 2\src\engine\dynlight.cpp
+	"engine.h"
+
+1359213376 source:e:\sauerbraten collector edition 2\src\engine\blend.cpp
+	"engine.h"
+
+1359213376 source:e:\sauerbraten collector edition 2\src\engine\glare.cpp
+	"engine.h"
+	"rendertarget.h"
+
+1359213376 e:\sauerbraten collector edition 2\src\engine\rendertarget.h
+
+1359213376 source:e:\sauerbraten collector edition 2\src\engine\grass.cpp
+	"engine.h"
+
+1359213376 source:e:\sauerbraten collector edition 2\src\engine\lightmap.cpp
+	"engine.h"
+
+1359213376 source:e:\sauerbraten collector edition 2\src\engine\main.cpp
+	"engine.h"
+
+1359213376 source:e:\sauerbraten collector edition 2\src\engine\material.cpp
+	"engine.h"
+
+1359213376 source:e:\sauerbraten collector edition 2\src\engine\menus.cpp
+	"engine.h"
+
+1359213376 source:e:\sauerbraten collector edition 2\src\engine\movie.cpp
+	"engine.h"
+	"SDL_mixer.h"
+
+1359213376 e:\sauerbraten collector edition 2\src\include\sdl_mixer.h
+	"SDL_types.h"
+	"SDL_rwops.h"
+	"SDL_audio.h"
+	"SDL_endian.h"
+	"SDL_version.h"
+	"begin_code.h"
+	"close_code.h"
+
+1359213376 e:\sauerbraten collector edition 2\src\include\sdl_types.h
+	"SDL_stdinc.h"
+
+1359213376 source:e:\sauerbraten collector edition 2\src\engine\normal.cpp
+	"engine.h"
+
+1359213376 source:e:\sauerbraten collector edition 2\src\engine\octa.cpp
+	"engine.h"
+
+1359213376 source:e:\sauerbraten collector edition 2\src\engine\octaedit.cpp
+	"engine.h"
+
+1359213376 source:e:\sauerbraten collector edition 2\src\engine\octarender.cpp
+	"engine.h"
+
+1359213376 source:e:\sauerbraten collector edition 2\src\engine\bih.cpp
+	"engine.h"
+
+1359213376 source:e:\sauerbraten collector edition 2\src\engine\pvs.cpp
+	"engine.h"
+	"SDL_thread.h"
+
+1359213376 source:e:\sauerbraten collector edition 2\src\engine\rendergl.cpp
+	"engine.h"
+	"varray.h"
+
+1359213376 source:e:\sauerbraten collector edition 2\src\engine\renderparticles.cpp
+	"engine.h"
+	"rendertarget.h"
+	"depthfx.h"
+	"explosion.h"
+	"lensflare.h"
+	"lightning.h"
+
+1359213376 e:\sauerbraten collector edition 2\src\engine\depthfx.h
+
+1359213376 e:\sauerbraten collector edition 2\src\engine\explosion.h
+
+1359213376 e:\sauerbraten collector edition 2\src\engine\lensflare.h
+
+1359213376 e:\sauerbraten collector edition 2\src\engine\lightning.h
+
+1359213376 source:e:\sauerbraten collector edition 2\src\engine\rendersky.cpp
+	"engine.h"
+
+1393626275 source:e:\sauerbraten collector edition 2\src\engine\rendertext.cpp
+	"engine.h"
+
+1359213376 source:e:\sauerbraten collector edition 2\src\engine\renderva.cpp
+	"engine.h"
+
+1359213376 source:e:\sauerbraten collector edition 2\src\engine\server.cpp
+	"engine.h"
+	"shellapi.h"
+
+1359213376 source:e:\sauerbraten collector edition 2\src\engine\serverbrowser.cpp
+	"engine.h"
+	"SDL_thread.h"
+
+1359213376 source:e:\sauerbraten collector edition 2\src\engine\shader.cpp
+	"engine.h"
+
+1359213376 source:e:\sauerbraten collector edition 2\src\engine\shadowmap.cpp
+	"engine.h"
+	"rendertarget.h"
+
+1359213376 source:e:\sauerbraten collector edition 2\src\engine\sound.cpp
+	"engine.h"
+	"SDL_mixer.h"
+	<wchar.h>
+	<unistd.h>
+	<sys/types.h>
+	<sys/stat.h>
+	<sys/mman.h>
+	<fcntl.h>
+	<wchar.h>
+
+1359213376 source:e:\sauerbraten collector edition 2\src\engine\texture.cpp
+	"engine.h"
+	"scale.h"
+	"scale.h"
+	"scale.h"
+	"scale.h"
+
+1359213376 e:\sauerbraten collector edition 2\src\engine\scale.h
+
+1359213376 source:e:\sauerbraten collector edition 2\src\engine\water.cpp
+	"engine.h"
+
+1359213376 source:e:\sauerbraten collector edition 2\src\engine\world.cpp
+	"engine.h"
+
+1359213376 source:e:\sauerbraten collector edition 2\src\engine\worldio.cpp
+	"engine.h"
+
+1359213376 source:e:\sauerbraten collector edition 2\src\fpsgame\ai.cpp
+	"game.h"
+
+1359213376 e:\sauerbraten collector edition 2\src\fpsgame\game.h
+	"cube.h"
+	"ai.h"
+
+1392846424 source:e:\sauerbraten collector edition 2\src\engine\rendermodel.cpp
+	"engine.h"
+	"ragdoll.h"
+	"animmodel.h"
+	"vertmodel.h"
+	"skelmodel.h"
+	"md2.h"
+	"md3.h"
+	"md5.h"
+	"obj.h"
+	"smd.h"
+	"iqm.h"
+
+1359213376 e:\sauerbraten collector edition 2\src\engine\ragdoll.h
+
+1359213376 e:\sauerbraten collector edition 2\src\engine\animmodel.h
+
+1359213376 e:\sauerbraten collector edition 2\src\engine\vertmodel.h
+
+1359213376 e:\sauerbraten collector edition 2\src\engine\skelmodel.h
+
+1359213376 e:\sauerbraten collector edition 2\src\engine\md2.h
+
+1359213376 e:\sauerbraten collector edition 2\src\engine\md3.h
+
+1359213376 e:\sauerbraten collector edition 2\src\engine\md5.h
+
+1359213376 e:\sauerbraten collector edition 2\src\engine\obj.h
+
+1359213376 e:\sauerbraten collector edition 2\src\engine\smd.h
+
+1359213376 e:\sauerbraten collector edition 2\src\engine\iqm.h
+
+1393628200 source:e:\sauerbraten collector edition 2\src\fpsgame\client.cpp
+	"game.h"
+	"capture.h"
+	"ctf.h"
+	"collect.h"
+	"capture.h"
+	"ctf.h"
+	"collect.h"
+
+1359213376 e:\sauerbraten collector edition 2\src\fpsgame\capture.h
+
+1393702893 e:\sauerbraten collector edition 2\src\fpsgame\ctf.h
+
+1359213376 e:\sauerbraten collector edition 2\src\fpsgame\collect.h
+
+1359213376 source:e:\sauerbraten collector edition 2\src\fpsgame\entities.cpp
+	"game.h"
+
+1393629148 source:e:\sauerbraten collector edition 2\src\fpsgame\fps.cpp
+	"game.h"
+
+1359213376 source:e:\sauerbraten collector edition 2\src\engine\physics.cpp
+	"engine.h"
+	"mpr.h"
+
+1359213376 e:\sauerbraten collector edition 2\src\engine\mpr.h
+
+1359213376 source:e:\sauerbraten collector edition 2\src\fpsgame\monster.cpp
+	"game.h"
+
+1359213376 source:e:\sauerbraten collector edition 2\src\fpsgame\movable.cpp
+	"game.h"
+
+1359213376 source:e:\sauerbraten collector edition 2\src\fpsgame\render.cpp
+	"game.h"
+
+1359213376 source:e:\sauerbraten collector edition 2\src\fpsgame\scoreboard.cpp
+	"game.h"
+
+1359213376 source:e:\sauerbraten collector edition 2\src\fpsgame\server.cpp
+	"game.h"
+	"capture.h"
+	"ctf.h"
+	"collect.h"
+	"capture.h"
+	"ctf.h"
+	"collect.h"
+	"extinfo.h"
+	"aiman.h"
+
+1359213376 e:\sauerbraten collector edition 2\src\fpsgame\extinfo.h
+
+1359213376 e:\sauerbraten collector edition 2\src\fpsgame\aiman.h
+
+1359213376 source:e:\sauerbraten collector edition 2\src\fpsgame\waypoint.cpp
+	"game.h"
+
+1359213376 source:e:\sauerbraten collector edition 2\src\fpsgame\weapon.cpp
+	"game.h"
+
+1359213376 source:e:\sauerbraten collector edition 2\src\shared\crypto.cpp
+	"cube.h"
+
+1359213376 source:e:\sauerbraten collector edition 2\src\engine\3dgui.cpp
+	"engine.h"
+	"textedit.h"
+
+1359213376 e:\sauerbraten collector edition 2\src\engine\textedit.h
+
+1359213376 source:e:\sauerbraten collector edition 2\src\shared\geom.cpp
+	"cube.h"
+
+1359213376 source:e:\sauerbraten collector edition 2\src\shared\stream.cpp
+	"cube.h"
+	<shlobj.h>
+	<unistd.h>
+	<sys/stat.h>
+	<sys/types.h>
+	<dirent.h>
+
+1359213376 source:e:\sauerbraten collector edition 2\src\shared\tools.cpp
+	"cube.h"
+	<unistd.h>
+
+1359213376 source:e:\sauerbraten collector edition 2\src\shared\zip.cpp
+	"cube.h"
+
+1359213376 source:e:\sauerbraten collector edition 2\src\vcpp\mingw.rc
+	"sauerbraten.rc"
+
+1359213376 e:\sauerbraten collector edition 2\src\vcpp\sauerbraten.rc
+	"winresrc.h"
+
