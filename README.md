@@ -1,18 +1,19 @@
 # [happy] Sauerbraten Client V0.5 (Alpha)
-A custom client for the game Cube 2: Sauerbraten.
+A custom client for the open-source game [Cube 2: Sauerbraten](http://sauerbraten.org/).
+It is designed to be a near perfect client, combining functionality with appearance.
 
 ## Features
 
 - Scoreboard:
-	1. Show current flag holder.	
-	2. Show flags scored.	
-	3. Show frags.	
-	4. Show deaths.	
-	5. Show accuracy.	
-	6. Show KPD.	
-	7. Show teamkills.	
-	8. Show spectators' pings.	
-	9. Show country.	
+	1. Show current flag holder.
+	2. Show flags scored.
+	3. Show frags.
+	4. Show deaths.
+	5. Show accuracy.
+	6. Show KPD.
+	7. Show teamkills.
+	8. Show spectators' pings.
+	9. Show country.
 - Server country in server browser.
 - Find players.
 - Server filter.
@@ -25,8 +26,7 @@ A custom client for the game Cube 2: Sauerbraten.
 		and
 		```
 		/bind v [sayteam (concatword "No problem " $teamkiller "!")]
-		```		
-		).
+		```).
 - Colored rifle shot trails.
 - Make rifle shots look like lightning.
 - Highlight ammo when less than a specific amount.
