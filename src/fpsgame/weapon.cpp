@@ -562,8 +562,8 @@ namespace game
 
     VARP(muzzleflash, 0, 1, 1);
     VARP(muzzlelight, 0, 1, 1);
-	VARP(rifletrailcolored, 0, 1, 1);
-	VARP(rifletraillightning, 0, 0, 1);
+	VARHSC(rifletrailcolored, 0, 1, 1);
+	VARHSC(rifletraillightning, 0, 0, 1);
 
     void shoteffects(int gun, const vec &from, const vec &to, fpsent *d, bool local, int id, int prevaction)     // create visual effect from a shot
     {

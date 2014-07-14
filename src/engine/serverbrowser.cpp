@@ -544,10 +544,10 @@ void refreshservers()
 
 serverinfo *selectedserver = NULL;
 
-VARP(filtermmode, 0, 0, 3);
-VARP(filterfull, 0, 0, 1);
-VARP(filterempty, 0, 0, 1);
-VARP(filterunknown, 0, 0, 1);
+VAR(filtermmode, 0, 0, 3);
+VAR(filterfull, 0, 0, 1);
+VAR(filterempty, 0, 0, 1);
+VAR(filterunknown, 0, 0, 1);
 SVARF(filterdesc, "", loopi(strlen(filterdesc)) filterdesc[i] = tolower(filterdesc[i]));
 SVARF(filtermap, "", loopi(strlen(filtermap)) filtermap[i] = tolower(filtermap[i]));
 
@@ -717,7 +717,7 @@ int lastinforesp = -20000;
 #define EXT_DEFS_ONLY
 #include "extinfo.h"
 
-VARP(playerrefreshinterval, 0, 15000, 60000);
+VARHSC(playerrefreshinterval, 0, 15000, 60000);
 
 void updateextplayers()
 {
@@ -826,7 +826,7 @@ void checkextplayers()
 	}
 }
 
-VARP(playerbrowsercountry, 0, 5, 5);
+VARHSC(playerbrowsercountry, 0, 5, 5);
 SVAR(filtername, "");
 
 const char *showplayers(g3d_gui *cgui, uint *header, int pagemin)
@@ -865,21 +865,24 @@ const char *showplayers(g3d_gui *cgui, uint *header, int pagemin)
 		}
 
 		cgui->pushlist();
-		cgui->mergehits(1);
+		//cgui->mergehits(1);
 
 		cgui->pushlist();
 		cgui->text("player", 0xFFFF80, 0);
 		cgui->strut(25);
 		for (int j = 0; j < min(filteredpeis->length()-i*pagemin, pagemin); j++) if(cgui->buttonf("%s ", 0xFFFFDD, NULL, (*filteredpeis)[j+i*pagemin].name)&G3D_UP)
 		{
-			selplserv = (*filteredpeis)[j+i*pagemin].serv;
-		};
+			game::whoisip((*filteredpeis)[j+i*pagemin].ip, (*filteredpeis)[j+i*pagemin].name);
+		}
 		cgui->poplist();
 
 		cgui->pushlist();
 		cgui->text("server", 0xFFFF80, 0);
 		cgui->strut(30);
-		for (int j = 0; j < min(filteredpeis->length()-i*pagemin, pagemin); j++) cgui->buttonf("%s ", 0xFFFFDD, NULL, (*filteredpeis)[j+i*pagemin].serv->sdesc? (*filteredpeis)[j+i*pagemin].serv->sdesc: "");
+		for (int j = 0; j < min(filteredpeis->length()-i*pagemin, pagemin); j++)  if(cgui->buttonf("%s ", 0xFFFFDD, NULL, (*filteredpeis)[j+i*pagemin].serv->sdesc? (*filteredpeis)[j+i*pagemin].serv->sdesc: "")&G3D_UP)
+		{
+			selplserv = (*filteredpeis)[j+i*pagemin].serv;
+		}
 		cgui->poplist();
 
 		if (playerbrowsercountry > 0)
@@ -898,13 +901,11 @@ const char *showplayers(g3d_gui *cgui, uint *header, int pagemin)
 				cgui->textf("%s", 0xFFFFDD, (playerbrowsercountry&1)? icon: NULL, country);
 			}
 		}
+
 		if (!i && filteredpeis->length() < pagemin) for (int j = filteredpeis->length(); j < pagemin; j++) cgui->text("", 0xFFFF80, 0);
-		if (playerbrowsercountry > 0)
-		{
-			cgui->poplist();
-		}
+		if (playerbrowsercountry > 0) cgui->poplist();
 		
-		cgui->mergehits(0);
+		//cgui->mergehits(0);
 		cgui->poplist();
 	}
 	if (filteredpeis != &playereis) delete filteredpeis;
@@ -955,7 +956,7 @@ void writeservercfg()
 
 SVAR(demolist, "");
 VAR(selecteddemo, 0, 0, 1);
-VARP(maxnodemos, 1, 340, 1000);
+VARHSC(maxnodemos, 1, 340, 1000);
 string demomode;
 struct demoinfo { char *file, *map, *date; int size; };
 vector<demoinfo> demofilelist;
@@ -1089,3 +1090,13 @@ const char *showdemos(g3d_gui *cgui, uint *header, int pagemin)
 	formatstring(cmd)("setmode -1; demo demos/%s/%s; selecteddemo 0", demomode, demofilelist[seldemo].file);
 	return cmd;
 }
+
+vector<const char *> friends;
+VARHSC(enablefriendlist, 0, 0, 1);
+
+void addfriend(const char *name)
+{
+	friends.add(newstring(name));
+}
+COMMAND(addfriend, "s");
+

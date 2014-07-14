@@ -393,11 +393,11 @@ namespace game
 	SVAR(teamkilled, "");
 	SVAR(teamkiller, "");
 
-	VARP(autosayteam, 0, 1, 1);
-	VARP(doautosorry, 0, 0, 1);
-	SVAR(autosorry, "Sorry %s");
-	VARP(doautonp, 0, 0, 1);
-	SVAR(autonp, "No problem %s");
+	VARHSC(autosayteam, 0, 1, 1);
+	VARHSC(doautosorry, 0, 0, 1);
+	SVARHSC(autosorry, "Sorry %s");
+	VARHSC(doautonp, 0, 0, 1);
+	SVARHSC(autonp, "No problem %s");
 
     void killed(fpsent *d, fpsent *actor)
     {
@@ -466,8 +466,8 @@ namespace game
 		ai::killed(d, actor);
     }
 
-	VARP(doautogg, 0, 0, 1);
-	SVAR(autogg, "Good game");
+	VARHSC(doautogg, 0, 0, 1);
+	SVARHSC(autogg, "Good game");
 
     void timeupdate(int secs)
     {
@@ -842,7 +842,7 @@ namespace game
         glPopMatrix();
     }
 
-	VARP(ammohighlight, -1, 3, 99);
+	VARHSC(ammohighlight, -1, 3, 99);
 
     void drawhudicons(fpsent *d)
     {
@@ -1101,6 +1101,7 @@ namespace game
     void readgamedata(vector<char> &extras) {}
 
     const char *savedconfig() { return "config.cfg"; }
+    const char *hscconfig() { return "hsc_config.cfg"; }
     const char *restoreconfig() { return "restore.cfg"; }
     const char *defaultconfig() { return "data/defaults.cfg"; }
     const char *autoexec() { return "autoexec.cfg"; }

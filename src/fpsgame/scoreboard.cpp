@@ -133,16 +133,16 @@ namespace game
         return numgroups;
     }
 
-	VARP(scoreboardextinfo, 0, 1, 1);
-	VARP(scoreboardfrags, 0, 1, 1);
-	VARP(scoreboardflag, 0, 1, 1);
-	VARP(scoreboardflags, 0, 1, 1);
-	VARP(scoreboarddeaths, 0, 1, 1);
-	VARP(scoreboardaccuracy, 0, 1, 1);
-	VARP(scoreboardkpd, 0, 0, 1);
-	VARP(scoreboardteamkills, 0, 0, 1);
-	VARP(scoreboardcountry, 0, 3, 5);
-	VARP(scoreboardspecping, 0, 1, 1);
+	VARHSC(scoreboardextinfo, 0, 1, 1);
+	VARHSC(scoreboardfrags, 0, 1, 1);
+	VARHSC(scoreboardflag, 0, 1, 1);
+	VARHSC(scoreboardflags, 0, 1, 1);
+	VARHSC(scoreboarddeaths, 0, 1, 1);
+	VARHSC(scoreboardaccuracy, 0, 1, 1);
+	VARHSC(scoreboardkpd, 0, 0, 1);
+	VARHSC(scoreboardteamkills, 0, 0, 1);
+	VARHSC(scoreboardcountry, 0, 3, 5);
+	VARHSC(scoreboardspecping, 0, 1, 1);
 
     void renderscoreboard(g3d_gui &g, bool firstpass)
     {
@@ -246,7 +246,6 @@ namespace game
 				g.text("frags", fgcolor);
 				loopscoregroup(o,
 				{
-					const char *ficon = NULL;
 					if (scoreboardflags && o->flags) g.textf("%d-%d", 0xFFFFDD, NULL, o->frags, o->flags);
 					else g.textf("%d", 0xFFFFDD, NULL, o->frags);
 				});
@@ -531,7 +530,7 @@ namespace game
 		if (!names) return;
 		whoisent wie;
 		wie.ip = endianswap(GeoIP_addr_to_num(ip));
-		wie.ip %= (256*256*256);
+		wie.ip = wie.ip&0xFFFFFF;
 		splitlist(names, wie.names);
 		wies.add(wie);
 	});
@@ -540,7 +539,7 @@ namespace game
 	{
 		fpsent *cl = getclient(cn);
 		if (!cl) return NULL;
-		int nip = cl->ip%(256*256*256);
+		int nip = cl->ip&0xFFFFFF;
 		for (int i = 0; i < wies.length(); i++)
 		{
 			if (wies[i].ip == nip)
@@ -548,12 +547,13 @@ namespace game
 				return &wies[i].names;
 			}
 		}
+		return NULL;
 	}
 
 	void addwhoisentry(uint ip, const char *name)
 	{
 		if (!scoreboardextinfo || !whoisenabled) return;
-		int nip = ip%(256*256*256);
+		int nip = ip&0xFFFFFF; //%(256*256*256)
 		bool found = false;
 		for (int i = 0; i < wies.length(); i++) if (wies[i].ip == nip)
 		{
@@ -584,7 +584,28 @@ namespace game
 		addwhoisentry(cl->ip, cl->name);
 	}
 
-	VARP(globalwhois, 0, 1, 1);
+	VARHSC(globalwhois, 0, 1, 1);
+
+	void whoisip(uint ip, const char *name)
+	{
+		if (!scoreboardextinfo) { conoutf("\f3error: whois requires extinfo to be enabled"); return; }
+		if (!whoisenabled) { conoutf("\f3error: whois is disabled"); return; }
+		ip = ip&0xFFFFFF;
+		if (!ip) return;
+		for (int i = 0; i < wies.length(); i++)
+		{
+			if (wies[i].ip == ip)
+			{
+				defformatstring(line)("\f0possible names for \f1%s\f0 are: \f3", name);
+				loopvj(wies[i].names)
+				{
+					concatstring(line, wies[i].names[j]);
+					concatstring(line, " ");
+				}
+				conoutf(line);
+			}
+		}
+	}
 
 	void whois(const int cn, bool msg)
 	{
@@ -593,7 +614,8 @@ namespace game
 		if (!whoisenabled) { if (msg) conoutf("\f3error: whois is disabled"); return; }
 		fpsent *cl = getclient(cn);
 		if (!cl || !cl->ip) return;
-		int nip = cl->ip%(256*256*256);
+		int nip = cl->ip&0xFFFFFF;
+		if (!nip) return;
 		for (int i = 0; i < wies.length(); i++)
 		{
 			if (wies[i].ip == nip)
@@ -610,23 +632,47 @@ namespace game
 	}
 	ICOMMAND(whois, "i", (const int *cn, bool msg), { whois(*cn, true); });
 
-	//ICOMMAND(whoisip, "s", (const char *ip), 
-	//{
-	//	int nip = endianswap(GeoIP_addr_to_num(ip));
-	//	for (int i = 0; i < wies.length(); i++)
-	//	{
-	//		if (wies[i].ip == nip)
-	//		{
-	//			defformatstring(line)("\f0possible names for IP \f1(%s)\f0 are: \f3", ip);
-	//			loopvj(wies[i].names)
-	//			{
-	//				concatstring(line, wies[i].names[j]);
-	//				concatstring(line, " ");
-	//			}
-	//			conoutf(line);
-	//		}
-	//	}
-	//});
+	void whoisname(const char *name, int exact)
+	{
+		if (!scoreboardextinfo) { conoutf("\f3error: whois requires extinfo to be enabled"); return; }
+		if (!whoisenabled) { conoutf("\f3error: whois is disabled"); return; }
+		if (!name || !name[0]) return;
+		conoutf("\f0everyone who used the name \f1%s\f0:\n\f6============", name);
+		for (int i = 0; i < wies.length(); i++)
+		{
+			bool found = false;
+			string cname, bname;
+			if (!exact)
+			{
+				strcpy(cname, name);
+				strlwr(cname);
+			}
+			loopvj(wies[i].names)
+			{
+				if (!exact)
+				{
+					strcpy(bname, wies[i].names[j]);
+					strlwr(bname);
+					if (strstr(bname, cname)) found = true;
+				}
+				else if (strcasecmp(wies[i].names[j], name) == 0) found = true;
+			}
+
+			if (found)
+			{
+				defformatstring(line)("\f0%d.%d.%d.* \f1%s\f0: \f3", wies[i].ip&0xFF, (wies[i].ip&0xFF00)>>8, (wies[i].ip&0xFF0000)>>16, GeoIP_country_name_by_ipnum(geoip, endianswap(wies[i].ip)));
+				loopvj(wies[i].names)
+				{
+					concatstring(line, wies[i].names[j]);
+					concatstring(line, " ");
+				}
+				conoutf("%s", line);
+			}
+		}
+		conoutf("\f6============");
+	}
+	ICOMMAND(whoisname, "si", (const char *name, const int *exact), { whoisname(name, *exact); });
+
 
 	void loadwhoisdb()
 	{

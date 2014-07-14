@@ -860,9 +860,9 @@ namespace game
 
 	vector<char *> hlwords;
 
-	VARP(chathighligh, 0, 1, 1);
-	VARP(highlightstyle, 0, 3, 3);
-	SVARFP(highlightwords, "", { hlwords.deletearrays(); hlwords.setsize(0); splitlist(strlwr(highlightwords), hlwords); } );
+	VARHSC(chathighligh, 0, 1, 1);
+	VARHSC(highlightstyle, 0, 3, 3);
+	SVARFHSC(highlightwords, "", { hlwords.deletearrays(); hlwords.setsize(0); splitlist(strlwr(highlightwords), hlwords); } );
 
 	const char *highlighttext(const char *text)
 	{
@@ -870,7 +870,6 @@ namespace game
 		strcpy(buf, text);
 		strcpy(tmp, text);
 		strlwr(tmp);
-		int off = 0;
 		for (int i = 0; i < hlwords.length(); i++)
 		{
 			char *start = buf;
@@ -1881,7 +1880,7 @@ namespace game
                 int cn = getint(p), unpacklen = getint(p), packlen = getint(p);
                 fpsent *d = getclient(cn);
                 ucharbuf q = p.subbuf(max(packlen, 0));
-                //if(d) unpackeditinfo(d->edit, q.buf, q.maxlen, unpacklen);
+                if(d) unpackeditinfo(d->edit, q.buf, q.maxlen, unpacklen);
                 break;
             }
 

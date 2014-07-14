@@ -30,6 +30,7 @@ void quit()                     // normal exit
     disconnect();
     localdisconnect();
     writecfg();
+    writecfg(NULL, true);
     cleanup();
     exit(EXIT_SUCCESS);
 }
@@ -1187,6 +1188,7 @@ int main(int argc, char **argv)
     execfile("data/keymap.cfg");
     execfile("data/stdedit.cfg");
     execfile("data/menus.cfg");
+    execfile("data/hsc_menus.cfg", false);
     execfile("data/sounds.cfg");
     execfile("data/brush.cfg");
     execfile("mybrushes.cfg", false);
@@ -1200,6 +1202,7 @@ int main(int argc, char **argv)
         execfile(game::defaultconfig());
         writecfg(game::restoreconfig());
     }
+	execfile(game::hscconfig(), false);
 	// temporary
 	if (fragconsole)
 	{

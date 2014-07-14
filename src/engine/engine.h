@@ -479,7 +479,7 @@ extern hashset<ident> idents;
 extern int identflags;
 
 extern void clearoverrides();
-extern void writecfg(const char *name = NULL);
+extern void writecfg(const char *name = NULL, bool hsc = false);
 
 extern void checksleep(int millis);
 extern void clearsleep(bool clearoverrides = true);

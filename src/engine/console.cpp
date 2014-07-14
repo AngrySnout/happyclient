@@ -71,11 +71,11 @@ VARP(miniconwidth, 0, 40, 100);
 VARP(confade, 0, 30, 60);
 VARP(miniconfade, 0, 30, 60);
 VARP(fullconsize, 0, 75, 100);
-VARP(fragconsole, 0, 1, 1);
+VARHSC(fragconsole, 0, 1, 1);
 HVARP(confilter, 0, 0x7FFFFFF, 0x7FFFFFF);
 HVARP(fullconfilter, 0, 0x7FFFFFF, 0x7FFFFFF);
 HVARP(miniconfilter, 0, 0, 0x7FFFFFF);
-HVARP(fragconfilter, 0, 0x2800, 0x7FFFFFF);
+HVARHSC(fragconfilter, 0, 0x2800, 0x7FFFFFF);
 
 int conskip = 0, miniconskip = 0;
 

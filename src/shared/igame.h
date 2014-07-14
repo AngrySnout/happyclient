@@ -43,6 +43,7 @@ namespace game
 
     extern const char *gameident();
     extern const char *savedconfig();
+    extern const char *hscconfig();
     extern const char *restoreconfig();
     extern const char *defaultconfig();
     extern const char *autoexec();
@@ -93,6 +94,7 @@ namespace game
 	extern void loadwhoisdb();
 	extern void saveclearwhoisdb();
 	extern void addwhoisentry(uint ip, const char *name);
+	extern void whoisip(uint ip, const char *name);
 } 
  
 namespace server
