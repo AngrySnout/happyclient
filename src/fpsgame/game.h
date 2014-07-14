@@ -3,6 +3,10 @@
 
 #include "cube.h"
 
+#define EXT_DEFS_ONLY
+#include "extinfo.h"
+#undef EXT_DEFS_ONLY
+
 // console message types
 
 enum

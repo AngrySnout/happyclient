@@ -393,11 +393,11 @@ namespace game
 	SVAR(teamkilled, "");
 	SVAR(teamkiller, "");
 
-	VARP(autosayteam, 0, 1, 1);
-	VARP(doautosorry, 0, 0, 1);
-	SVAR(autosorry, "Sorry %s");
-	VARP(doautonp, 0, 0, 1);
-	SVAR(autonp, "No problem %s");
+	VARHSC(autosayteam, 0, 1, 1);
+	VARHSC(doautosorry, 0, 0, 1);
+	SVARHSC(autosorry, "Sorry %s");
+	VARHSC(doautonp, 0, 0, 1);
+	SVARHSC(autonp, "No problem %s");
 
     void killed(fpsent *d, fpsent *actor)
     {
@@ -425,17 +425,16 @@ namespace game
             aname = colorname(actor, NULL, "", "", "you");
         }
 		extern void sayteam(char *text);
-		int weap = min(actor->gunselect, (int)GUN_PISTOL)*2;
         if(actor->type==ENT_AI)
             conoutf(contype, "\f2%s got killed by %s!", dname, aname);
         else if(d==actor || actor->type==ENT_INANIMATE)
-            conoutf(contype, "\f2%s \a%d%s", dname, weap+1, d==player1 ? "!" : ""); //suicided
+            conoutf(contype, "\f2%s \a1%s", dname, d==player1 ? "!" : ""); //suicided
         else if(isteam(d->team, actor->team))
         {
             contype |= CON_TEAMKILL;
             if(actor==player1)
 			{
-				conoutf(contype, "\f6%s \fs\f3\a%d\fr (%s\f6)", aname, weap, dname); //fragged a teammate
+				conoutf(contype, "\f6%s \fs\f3\a0\fr (%s\f6)", aname, dname); //fragged a teammate
 				setsvar("teamkilled", d->name);
 				if (doautosorry)
 				{
@@ -446,7 +445,7 @@ namespace game
 			}
             else if(d==player1)
 			{
-				conoutf(contype, "\f6%s \fs\f3\a%d\fr (%s\f6)", dname, weap+1, aname); //got fragged by a teammate
+				conoutf(contype, "\f6%s \fs\f3\a1\fr (%s\f6)", dname, aname); //got fragged by a teammate
 				setsvar("teamkiller", actor->name);
 				if (doautonp)
 				{
@@ -455,19 +454,19 @@ namespace game
 					else toserver(text);
 				}
 			}
-            else conoutf(contype, "\f2%s \fs\f6\a%d\fr (%s\f2)", aname, weap+1, dname); //fragged a teammate
+            else conoutf(contype, "\f2%s \fs\f6\a0\fr (%s\f2)", aname, dname); //fragged a teammate
         }
         else
         {
-            if(d==player1) conoutf(contype, "\f2%s \fs\f1\a%d\fr by %s", dname, weap+1, aname); //got fragged
-            else conoutf(contype, "\f2%s \fs\f0\a%d\fr %s", aname, weap, dname); //fragged
+            if(d==player1) conoutf(contype, "\f2%s \fs\f1\a1\fr by %s", dname, aname); //got fragged
+            else conoutf(contype, "\f2%s \fs\f0\a0\fr %s", aname, dname); //fragged
         }
         deathstate(d);
 		ai::killed(d, actor);
     }
 
-	VARP(doautogg, 0, 0, 1);
-	SVAR(autogg, "Good game");
+	VARHSC(doautogg, 0, 0, 1);
+	SVARHSC(autogg, "Good game");
 
     void timeupdate(int secs)
     {
@@ -842,7 +841,7 @@ namespace game
         glPopMatrix();
     }
 
-	VARP(ammohighlight, -1, 3, 99);
+	VARHSC(ammohighlight, -1, 3, 99);
 
     void drawhudicons(fpsent *d)
     {
@@ -1101,6 +1100,7 @@ namespace game
     void readgamedata(vector<char> &extras) {}
 
     const char *savedconfig() { return "config.cfg"; }
+    const char *hscconfig() { return "hsc_config.cfg"; }
     const char *restoreconfig() { return "restore.cfg"; }
     const char *defaultconfig() { return "data/defaults.cfg"; }
     const char *autoexec() { return "autoexec.cfg"; }

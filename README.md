@@ -19,6 +19,7 @@ It is designed to be a near perfect client, combining functionality with appeara
 - Server country in server browser.
 - Find players.
 - Server filter.
+- Preview server before connecting.
 - Different color for players using auth.
 - Auto sorry/np.
 - Sorry/np binds (eg
@@ -30,9 +31,9 @@ It is designed to be a near perfect client, combining functionality with appeara
 		/bind v [sayteam (concatword "No problem " $teamkiller "!")]
 		```).
 - Colored rifle shot trails.
-- Make rifle shots look like lightning.
+- Can make rifle shots look like lightning.
 - Highlight ammo when less than a specific amount.
-- Whois player tracking (local database, used like "/whois [cn]", or from the master menu).
+- Whois player tracking (local database, used like "/whois [cn]" and "/whoisname [name] [exact_ci_match]", or from the master menu).
 - Show IP in master menu.
 - Chat word highlighting.
 - Extra console for frags with a kill icon.

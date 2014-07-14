@@ -530,4 +530,10 @@ extern void g3d_limitscale(float scale);
 
 // serverbrowser
 extern GeoIP *geoip;
+extern uint serverpreviewhost;
+extern int serverpreviewport;
+extern const char *extservinfo;
 
+extern bool updateextinfo(ENetSocket &socket, uint host, int port, ucharbuf &p);
+extern void checkextinfo(ENetSocket &socket, bool (extinforesponse)(ucharbuf &p, ENetAddress &addr, int len));
+extern bool resolverwait(const char *name, ENetAddress *address);

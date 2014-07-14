@@ -583,6 +583,14 @@ void guidemos(uint *header, int *pagemin)
     }
 }
 
+void guiextscoreboard()
+{
+    if(cgui)
+    {
+        game::renderextscoreboard(*cgui);
+    }
+}
+
 void notifywelcome()
 {
     if(guiserversmenu)
@@ -598,6 +606,7 @@ COMMAND(guitext, "ss");
 COMMAND(guiservers, "eii");
 COMMAND(guiplayers, "ei");
 COMMAND(guidemos, "ei");
+COMMAND(guiextscoreboard, "");
 ICOMMAND(cleargui, "i", (int *n), intret(cleargui(*n)));
 COMMAND(showgui, "s");
 COMMAND(hidegui, "s");

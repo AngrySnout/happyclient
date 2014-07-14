@@ -1,2 +1,2 @@
 @ECHO OFF
-start bin\sauerbraten.exe "-q$HOME\My Games\HappySauerbraten" -glog.txt %*
+start bin\sauerbraten_hsc.exe "-q$HOME\My Games\HappySauerbraten" -glog.txt %*

@@ -860,9 +860,9 @@ namespace game
 
 	vector<char *> hlwords;
 
-	VARP(chathighligh, 0, 1, 1);
-	VARP(highlightstyle, 0, 3, 3);
-	SVARFP(highlightwords, "", { hlwords.deletearrays(); hlwords.setsize(0); splitlist(strlwr(highlightwords), hlwords); } );
+	VARHSC(chathighligh, 0, 1, 1);
+	VARHSC(highlightstyle, 0, 3, 3);
+	SVARFHSC(highlightwords, "", { hlwords.deletearrays(); hlwords.setsize(0); splitlist(strlwr(highlightwords), hlwords); } );
 
 	const char *highlighttext(const char *text)
 	{
@@ -870,7 +870,6 @@ namespace game
 		strcpy(buf, text);
 		strcpy(tmp, text);
 		strlwr(tmp);
-		int off = 0;
 		for (int i = 0; i < hlwords.length(); i++)
 		{
 			char *start = buf;
@@ -1030,97 +1029,45 @@ namespace game
 	int lastinfo = -20000;
 	int lastinforesp = -20000;
 
-	#define EXT_DEFS_ONLY
-	#include "extinfo.h"
-
-	void updateextinfo(int cn)
+	bool extplayerresponse(ucharbuf &p, ENetAddress &addr, int len)
 	{
-		if (cn < 0 && lastmillis-lastinfo < 5000) return;
-		lastinfo = lastmillis;
+		char text[MAXTRANS];
+		getint(p); getint(p); getint(p);
+		int ack = getint(p);
+		int ver = getint(p);
+		int iserr = getint(p);
+		if (ack != EXT_ACK || ver != EXT_VERSION || iserr != EXT_NO_ERROR) return true;
 
-		if(extinfosock == ENET_SOCKET_NULL) 
+		int extresp = getint(p);
+		if (extresp == EXT_PLAYERSTATS_RESP_STATS)
 		{
-			extinfosock = enet_socket_create(ENET_SOCKET_TYPE_DATAGRAM);
-			if(extinfosock == ENET_SOCKET_NULL)
+			int cn = getint(p);
+			fpsent *cl = getclient(cn);
+			if (!cl) return true;
+			lastinforesp = lastmillis;
+			getint(p);
+			getstring(cl->name, p);
+			getstring(text, p);
+			getint(p);
+			getint(p);
+			cl->deaths = getint(p);
+			cl->ext_teamkills = getint(p);
+			cl->ext_accuracy = getint(p);
+			getint(p);
+			getint(p);
+			getint(p);
+			getint(p);
+			getint(p);
+			uint ip;
+			p.get((uchar*)&ip, 3);
+			if (cl->ip != ip)
 			{
-				lastinfo = totalmillis;
-				return;
-			}
-			enet_socket_set_option(extinfosock, ENET_SOCKOPT_NONBLOCK, 1);
-			enet_socket_set_option(extinfosock, ENET_SOCKOPT_BROADCAST, 1);
-		}
-		ENetBuffer buf;
-		uchar ping[MAXTRANS];
-		ucharbuf p(ping, sizeof(ping));
-		putint(p, 0);
-		putint(p, EXT_PLAYERSTATS);
-		putint(p, cn);
-
-        const ENetAddress *addressp = connectedpeer();
-		ENetAddress address;
-		if (!addressp) return;
-		address.host = addressp->host;
-		address.port = server::serverinfoport(addressp->port);
-
-		if(address.host == ENET_HOST_ANY) return;
-		buf.data = ping;
-		buf.dataLength = p.length();
-		enet_socket_send(extinfosock, &address, &buf, 1);
-	}
-
-	void checkextinfo()
-	{
-		if(extinfosock==ENET_SOCKET_NULL) return;
-		enet_uint32 events = ENET_SOCKET_WAIT_RECEIVE;
-		ENetBuffer buf;
-		ENetAddress addr;
-		uchar ping[MAXTRANS];
-		char text[MAXSTRLEN];
-		buf.data = ping;
-		buf.dataLength = sizeof(ping);
-
-		while(enet_socket_wait(extinfosock, &events, 0) >= 0 && events)
-		{
-			int len = enet_socket_receive(extinfosock, &addr, &buf, 1);
-			if(len <= 0) return;
-
-			ucharbuf p(ping, len);
-			getint(p); getint(p); getint(p);
-			int ack = getint(p);
-			int ver = getint(p);
-			int iserr = getint(p);
-			if (ack != EXT_ACK || ver != EXT_VERSION || iserr != EXT_NO_ERROR) return;
-
-			int extresp = getint(p);
-			if (extresp == EXT_PLAYERSTATS_RESP_STATS)
-			{
-				int cn = getint(p);
-				fpsent *cl = getclient(cn);
-				if (!cl) break;
-				lastinforesp = lastmillis;
-				getint(p);
-				getstring(cl->name, p);
-				getstring(text, p);
-				getint(p);
-				getint(p);
-				cl->deaths = getint(p);
-				cl->ext_teamkills = getint(p);
-				cl->ext_accuracy = getint(p);
-				getint(p);
-				getint(p);
-				getint(p);
-				getint(p);
-				getint(p);
-				uint ip;
-				p.get((uchar*)&ip, 3);
-				if (cl->ip != ip)
-				{
-					cl->ip = ip;
-					addplayerwhois(cn);
-					whois(cn, false);
-				}
+				cl->ip = ip;
+				addplayerwhois(cn);
+				whois(cn, false);
 			}
 		}
+		return true;
 	}
 
     void c2sinfo(bool force) // send update to the server
@@ -1135,8 +1082,21 @@ namespace game
 
 		if (scoreboardextinfo)
 		{
-			checkextinfo();
-			updateextinfo(-1);
+			if (lastmillis-lastinfo > 5000)
+			{
+				const ENetAddress *addressp = connectedpeer();
+				if (addressp)
+				{
+					uchar ping[MAXTRANS];
+					ucharbuf p(ping, sizeof(ping));
+					putint(p, 0);
+					putint(p, EXT_PLAYERSTATS);
+					putint(p, -1);
+					updateextinfo(extinfosock, addressp->host, server::serverinfoport(addressp->port), p);
+					lastinfo = lastmillis;
+				}
+			}
+			checkextinfo(extinfosock, extplayerresponse);
 		}
     }
 
@@ -1881,7 +1841,7 @@ namespace game
                 int cn = getint(p), unpacklen = getint(p), packlen = getint(p);
                 fpsent *d = getclient(cn);
                 ucharbuf q = p.subbuf(max(packlen, 0));
-                //if(d) unpackeditinfo(d->edit, q.buf, q.maxlen, unpacklen);
+                if(d) unpackeditinfo(d->edit, q.buf, q.maxlen, unpacklen);
                 break;
             }
 

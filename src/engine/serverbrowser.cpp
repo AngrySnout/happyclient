@@ -544,10 +544,10 @@ void refreshservers()
 
 serverinfo *selectedserver = NULL;
 
-VARP(filtermmode, 0, 0, 3);
-VARP(filterfull, 0, 0, 1);
-VARP(filterempty, 0, 0, 1);
-VARP(filterunknown, 0, 0, 1);
+VAR(filtermmode, 0, 0, 3);
+VAR(filterfull, 0, 0, 1);
+VAR(filterempty, 0, 0, 1);
+VAR(filterunknown, 0, 0, 1);
 SVARF(filterdesc, "", loopi(strlen(filterdesc)) filterdesc[i] = tolower(filterdesc[i]));
 SVARF(filtermap, "", loopi(strlen(filtermap)) filtermap[i] = tolower(filtermap[i]));
 
@@ -612,14 +612,36 @@ const char *showservers(g3d_gui *cgui, uint *header, int pagemin, int pagemax)
     return "connectselected";
 }
 
-void connectselected()
+VARHSC(serverpreview, 0, 1, 1);
+uint serverpreviewhost = 0;
+int serverpreviewport = 0;
+const char *extservinfo, *extservname, *extservpassword;
+
+void connectselected(const int *force)
 {
     if(!selectedserver) return;
-    connectserv(selectedserver->name, selectedserver->port, selectedserver->password);
-    selectedserver = NULL;
+	if (serverpreview && (!force || !(*force)))
+	{
+		if (selectedserver->address.host)
+		{
+			serverpreviewhost = selectedserver->address.host;
+			serverpreviewport = selectedserver->port;
+			extservpassword = selectedserver->password;
+			extservname = selectedserver->name;
+			game::clearextinfo();
+			extservinfo = selectedserver->sdesc;
+			execute("showgui extscoreboard");
+		}
+	}
+    else
+	{
+		connectserv(selectedserver->name, selectedserver->port, selectedserver->password);
+	}
+	selectedserver = NULL;
 }
 
-COMMAND(connectselected, "");
+COMMAND(connectselected, "i");
+ICOMMAND(connectextselected, "", (), connectserv(extservname, serverpreviewport, extservpassword) );
 
 void clearservers(bool full = false)
 {
@@ -714,126 +736,150 @@ ENetSocket extinfosock = ENET_SOCKET_NULL;
 int lastplayerinfo = -20000;
 int lastinforesp = -20000;
 
-#define EXT_DEFS_ONLY
-#include "extinfo.h"
+VARHSC(playerrefreshinterval, 0, 15000, 60000);
 
-VARP(playerrefreshinterval, 0, 15000, 60000);
-
-void updateextplayers()
+bool updateextinfo(ENetSocket &socket, uint host, int port, ucharbuf &p)
 {
-	if (lastmillis-lastplayerinfo < playerrefreshinterval) return;
-	lastplayerinfo = lastmillis;
-
-	if(extinfosock == ENET_SOCKET_NULL) 
+	if(socket == ENET_SOCKET_NULL) 
 	{
-		extinfosock = enet_socket_create(ENET_SOCKET_TYPE_DATAGRAM);
-		if(extinfosock == ENET_SOCKET_NULL)
+		socket = enet_socket_create(ENET_SOCKET_TYPE_DATAGRAM);
+		if(socket == ENET_SOCKET_NULL)
 		{
-			lastplayerinfo = totalmillis;
-			return;
+			return false;
 		}
-		enet_socket_set_option(extinfosock, ENET_SOCKOPT_NONBLOCK, 1);
-		enet_socket_set_option(extinfosock, ENET_SOCKOPT_BROADCAST, 1);
+		enet_socket_set_option(socket, ENET_SOCKOPT_NONBLOCK, 1);
+		enet_socket_set_option(socket, ENET_SOCKOPT_BROADCAST, 1);
 	}
 	ENetBuffer buf;
-	uchar ping[MAXTRANS];
+	/*uchar ping[MAXTRANS];
 	ucharbuf p(ping, sizeof(ping));
 	putint(p, 0);
 	putint(p, EXT_PLAYERSTATS);
-	putint(p, -1);
+	putint(p, -1);*/
 
-    loopv(servers)
-    {
-		serverinfo &si = *servers[i];
-		if(si.address.host == ENET_HOST_ANY) continue;
-		buf.data = ping;
+	if (host)
+	{
+		ENetAddress address;
+		address.host = host;
+		address.port = port;
+
+		if(address.host == ENET_HOST_ANY) return false;
+		buf.data = p.buf;
 		buf.dataLength = p.length();
-		enet_socket_send(extinfosock, &si.address, &buf, 1);
+		enet_socket_send(socket, &address, &buf, 1);
 	}
-	if(searchlan)
-    {
-        ENetAddress address;
-        address.host = ENET_HOST_BROADCAST;
-        address.port = server::laninfoport();
-        buf.data = ping;
-        buf.dataLength = p.length();
-        enet_socket_send(extinfosock, &address, &buf, 1);
-    }
+	else
+	{
+		loopv(servers)
+		{
+			serverinfo &si = *servers[i];
+			if(si.address.host == ENET_HOST_ANY) continue;
+			buf.data = p.buf;
+			buf.dataLength = p.length();
+			enet_socket_send(socket, &si.address, &buf, 1);
+		}
+		if(searchlan)
+		{
+			ENetAddress address;
+			address.host = ENET_HOST_BROADCAST;
+			address.port = server::laninfoport();
+			buf.data = p.buf;
+			buf.dataLength = p.length();
+			enet_socket_send(socket, &address, &buf, 1);
+		}
+	}
+	return true;
 }
 
-void checkextplayers()
+void checkextinfo(ENetSocket &socket, bool (extinforesponse)(ucharbuf &p, ENetAddress &addr, int len))
 {
-	if(extinfosock==ENET_SOCKET_NULL) return;
+	if(socket==ENET_SOCKET_NULL) return;
 	enet_uint32 events = ENET_SOCKET_WAIT_RECEIVE;
 	ENetBuffer buf;
 	ENetAddress addr;
 	uchar ping[MAXTRANS];
-	char text[MAXTRANS];
 	buf.data = ping; 
 	buf.dataLength = sizeof(ping);
 
-	while(enet_socket_wait(extinfosock, &events, 0) >= 0 && events)
+	while(enet_socket_wait(socket, &events, 0) >= 0 && events)
 	{
-		int len = enet_socket_receive(extinfosock, &addr, &buf, 1);
+		int len = enet_socket_receive(socket, &addr, &buf, 1);
 		if(len <= 0) return;
-		lastinforesp = lastmillis;
 
 		ucharbuf p(ping, len);
-		getint(p); getint(p); getint(p);
-		int ack = getint(p);
-		int ver = getint(p);
-		int iserr = getint(p);
-		if (ack != EXT_ACK || ver != EXT_VERSION || iserr != EXT_NO_ERROR) return;
-
-		int extresp = getint(p);
-		if (extresp == EXT_PLAYERSTATS_RESP_STATS)
-		{
-			playerextinfo pei;
-			pei.lastseen = totalmillis;
-			loopv(servers) if(addr.host == servers[i]->address.host && addr.port == servers[i]->address.port) { pei.serv = servers[i]; break; }
-			pei.cn = getint(p);
-			getint(p);
-			getstring(pei.name, p);
-			getstring(text, p);
-			getint(p);
-			getint(p);
-			getint(p);
-			getint(p);
-			getint(p);
-			getint(p);
-			getint(p);
-			getint(p);
-			getint(p);
-			getint(p);
-			p.get((uchar*)&pei.ip, 3);
-			bool found = false;
-			int servpi = playereis.length();
-			loopv(playereis) if (playereis[i].serv == pei.serv && playereis[i].cn == pei.cn)
-			{
-				strcpy(playereis[i].name, pei.name);
-				playereis[i].ip = pei.ip;
-				playereis[i].lastseen = totalmillis;
-				found = true;
-			} else if (playereis[i].serv == pei.serv) servpi = i+1;
-			if (!found)
-			{
-				playereis.insert(servpi, pei);
-				playereis[servpi].serv = pei.serv;
-				playereis[servpi].ip = pei.ip;
-			}
-			game::addwhoisentry(pei.ip, pei.name);
-		}
+		if (!extinforesponse(p, addr, len)) break;
 	}
 }
 
-VARP(playerbrowsercountry, 0, 5, 5);
+bool extplayerresponse(ucharbuf &p, ENetAddress &addr, int len)
+{
+	char text[MAXTRANS];
+	getint(p); getint(p); getint(p);
+	int ack = getint(p);
+	int ver = getint(p);
+	int iserr = getint(p);
+	if (ack != EXT_ACK || ver != EXT_VERSION || iserr != EXT_NO_ERROR) return true;
+	lastinforesp = lastmillis;
+
+	int extresp = getint(p);
+	if (extresp == EXT_PLAYERSTATS_RESP_STATS)
+	{
+		playerextinfo pei;
+		pei.lastseen = totalmillis;
+		loopv(servers) if(addr.host == servers[i]->address.host && addr.port == servers[i]->address.port) { pei.serv = servers[i]; break; }
+		pei.cn = getint(p);
+		getint(p);
+		getstring(pei.name, p);
+		getstring(text, p);
+		getint(p);
+		getint(p);
+		getint(p);
+		getint(p);
+		getint(p);
+		getint(p);
+		getint(p);
+		getint(p);
+		getint(p);
+		getint(p);
+		p.get((uchar*)&pei.ip, 3);
+		bool found = false;
+		int servpi = playereis.length();
+		loopv(playereis) if (playereis[i].serv == pei.serv && playereis[i].cn == pei.cn)
+		{
+			strcpy(playereis[i].name, pei.name);
+			playereis[i].ip = pei.ip;
+			playereis[i].lastseen = totalmillis;
+			found = true;
+		} else if (playereis[i].serv == pei.serv) servpi = i+1;
+		if (!found)
+		{
+			playereis.insert(servpi, pei);
+			playereis[servpi].serv = pei.serv;
+			playereis[servpi].ip = pei.ip;
+		}
+		game::addwhoisentry(pei.ip, pei.name);
+	}
+	return true;
+}
+
+VARHSC(playerbrowsercountry, 0, 5, 5);
 SVAR(filtername, "");
 
 const char *showplayers(g3d_gui *cgui, uint *header, int pagemin)
 {
     refreshservers();
-	updateextplayers();
-	checkextplayers();
+
+	if (lastmillis-lastplayerinfo > playerrefreshinterval)
+	{
+		uchar ping[MAXTRANS];
+		ucharbuf p(ping, sizeof(ping));
+		putint(p, 0);
+		putint(p, EXT_PLAYERSTATS);
+		putint(p, -1);
+		updateextinfo(extinfosock, 0, 0, p);
+		lastplayerinfo = lastmillis;
+	}
+	checkextinfo(extinfosock, extplayerresponse);
 
 	loopv(playereis) if (totalmillis-playereis[i].lastseen > 30000) playereis.remove(i);
 
@@ -865,21 +911,24 @@ const char *showplayers(g3d_gui *cgui, uint *header, int pagemin)
 		}
 
 		cgui->pushlist();
-		cgui->mergehits(1);
+		//cgui->mergehits(1);
 
 		cgui->pushlist();
 		cgui->text("player", 0xFFFF80, 0);
 		cgui->strut(25);
 		for (int j = 0; j < min(filteredpeis->length()-i*pagemin, pagemin); j++) if(cgui->buttonf("%s ", 0xFFFFDD, NULL, (*filteredpeis)[j+i*pagemin].name)&G3D_UP)
 		{
-			selplserv = (*filteredpeis)[j+i*pagemin].serv;
-		};
+			game::whoisip((*filteredpeis)[j+i*pagemin].ip, (*filteredpeis)[j+i*pagemin].name);
+		}
 		cgui->poplist();
 
 		cgui->pushlist();
 		cgui->text("server", 0xFFFF80, 0);
 		cgui->strut(30);
-		for (int j = 0; j < min(filteredpeis->length()-i*pagemin, pagemin); j++) cgui->buttonf("%s ", 0xFFFFDD, NULL, (*filteredpeis)[j+i*pagemin].serv->sdesc? (*filteredpeis)[j+i*pagemin].serv->sdesc: "");
+		for (int j = 0; j < min(filteredpeis->length()-i*pagemin, pagemin); j++)  if(cgui->buttonf("%s ", 0xFFFFDD, NULL, (*filteredpeis)[j+i*pagemin].serv->sdesc? (*filteredpeis)[j+i*pagemin].serv->sdesc: "")&G3D_UP)
+		{
+			selplserv = (*filteredpeis)[j+i*pagemin].serv;
+		}
 		cgui->poplist();
 
 		if (playerbrowsercountry > 0)
@@ -898,13 +947,11 @@ const char *showplayers(g3d_gui *cgui, uint *header, int pagemin)
 				cgui->textf("%s", 0xFFFFDD, (playerbrowsercountry&1)? icon: NULL, country);
 			}
 		}
+
 		if (!i && filteredpeis->length() < pagemin) for (int j = filteredpeis->length(); j < pagemin; j++) cgui->text("", 0xFFFF80, 0);
-		if (playerbrowsercountry > 0)
-		{
-			cgui->poplist();
-		}
+		if (playerbrowsercountry > 0) cgui->poplist();
 		
-		cgui->mergehits(0);
+		//cgui->mergehits(0);
 		cgui->poplist();
 	}
 	if (filteredpeis != &playereis) delete filteredpeis;
@@ -955,7 +1002,7 @@ void writeservercfg()
 
 SVAR(demolist, "");
 VAR(selecteddemo, 0, 0, 1);
-VARP(maxnodemos, 1, 340, 1000);
+VARHSC(maxnodemos, 1, 340, 1000);
 string demomode;
 struct demoinfo { char *file, *map, *date; int size; };
 vector<demoinfo> demofilelist;
@@ -1089,3 +1136,13 @@ const char *showdemos(g3d_gui *cgui, uint *header, int pagemin)
 	formatstring(cmd)("setmode -1; demo demos/%s/%s; selecteddemo 0", demomode, demofilelist[seldemo].file);
 	return cmd;
 }
+
+vector<const char *> friends;
+VARHSC(enablefriendlist, 0, 0, 1);
+
+void addfriend(const char *name)
+{
+	friends.add(newstring(name));
+}
+COMMAND(addfriend, "s");
+
