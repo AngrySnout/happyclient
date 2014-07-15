@@ -4,7 +4,7 @@
     <LocalDebuggerWorkingDirectory>..\..</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
     <ShowAllFiles>false</ShowAllFiles>
-    <LocalDebuggerCommandArguments>"-q$HOME\My Games\HappyBraten" -gslog.txt %*</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>"-q$HOME\My Games\HappyBraten" -gslog.txt -w1280 -h720 -t0 -x"gamma 100" %*</LocalDebuggerCommandArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Profile|Win32'">
     <LocalDebuggerWorkingDirectory>..\..</LocalDebuggerWorkingDirectory>

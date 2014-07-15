@@ -60,6 +60,7 @@ CLIENT_OBJS= \
 	engine/dynlight.o \
 	engine/glare.o \
 	engine/grass.o \
+	engine/irc.o \
 	engine/lightmap.o \
 	engine/main.o \
 	engine/material.o \
@@ -276,6 +277,10 @@ engine/grass.o: engine/engine.h shared/cube.h shared/tools.h shared/geom.h
 engine/grass.o: shared/ents.h shared/command.h shared/iengine.h
 engine/grass.o: shared/igame.h engine/world.h engine/octa.h engine/lightmap.h
 engine/grass.o: engine/bih.h engine/texture.h engine/model.h engine/varray.h
+engine/irc.o: engine/engine.h shared/cube.h shared/tools.h shared/geom.h
+engine/irc.o: shared/ents.h shared/command.h shared/iengine.h shared/igame.h
+engine/irc.o: engine/world.h engine/octa.h engine/lightmap.h engine/bih.h
+engine/irc.o: engine/texture.h engine/model.h engine/varray.h
 engine/lightmap.o: engine/engine.h shared/cube.h shared/tools.h shared/geom.h
 engine/lightmap.o: shared/ents.h shared/command.h shared/iengine.h
 engine/lightmap.o: shared/igame.h engine/world.h engine/octa.h

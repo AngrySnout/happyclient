@@ -1270,6 +1270,7 @@ int main(int argc, char **argv)
         checksleep(lastmillis);
 
         serverslice(false, 0);
+		ircslice();
 
         if(frames) updatefpshistory(elapsed);
         frames++;

@@ -164,7 +164,8 @@ enum
     CON_ERROR = 1<<2,
     CON_DEBUG = 1<<3,
     CON_INIT  = 1<<4,
-    CON_ECHO  = 1<<5
+    CON_ECHO  = 1<<5,
+	CON_IRC   = 1<<6
 };
 
 extern void conoutf(const char *s, ...) PRINTFARGS(1, 2);

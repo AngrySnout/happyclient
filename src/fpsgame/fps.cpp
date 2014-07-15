@@ -7,6 +7,20 @@ namespace game
     int respawnent = -1;
     int lasthit = 0, lastspawnattempt = 0;
 
+	VARHSC(recordstats, 0, 0, 0x7FFFFFFF);
+
+	VAR(stats_frags, 0, 0, 0x7FFFFFFF);
+	VAR(stats_chainsaw_frags, 0, 0, 0x7FFFFFFF);
+	VAR(stats_deaths, 0, 0, 0x7FFFFFFF);
+	VAR(stats_kpd, 0, 0, 0x7FFFFFFF);
+	VAR(stats_flags, 0, 0, 0x7FFFFFFF);
+	VAR(stats_accuracy, 0, 0, 0x7FFFFFFF);
+	VAR(stats_teamkills, 0, 0, 0x7FFFFFFF);
+	VAR(stats_got_teamkilled, 0, 0, 0x7FFFFFFF);
+	VAR(stats_suicides, 0, 0, 0x7FFFFFFF);
+	VAR(stats_damage, 0, 0, 0x7FFFFFFF);
+	VAR(stats_time, 0, 0, 0x7FFFFFFF);
+
     int following = -1, followdir = 0;
 
     fpsent *player1 = NULL;         // our client

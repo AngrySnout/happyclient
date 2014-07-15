@@ -172,6 +172,9 @@
     <ClCompile Include="..\fpsgame\pch.cpp">
       <Filter>FPS</Filter>
     </ClCompile>
+    <ClCompile Include="..\engine\irc.cpp">
+      <Filter>Engine\cs</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\fpsgame\ai.h">
@@ -293,6 +296,9 @@
     </ClInclude>
     <ClInclude Include="..\engine\vertmodel.h">
       <Filter>Engine\world</Filter>
+    </ClInclude>
+    <ClInclude Include="..\engine\irc.h">
+      <Filter>Engine\cs</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
