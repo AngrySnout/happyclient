@@ -2457,6 +2457,17 @@ void explodelist(const char *s, vector<char *> &elems, int limit)
         elems.add(newstring(start, end-start));
 }
 
+void splitlist(const char *s, vector<char *> &elems)
+{
+	const char *start = s, *end;
+	while(end = strchr(start, ' '))
+	{
+		elems.add(newstring(start, end-start));
+		start = end+1;
+	}
+	if (start[0]) elems.add(newstring(start, s+strlen(s)-start));
+}
+
 char *indexlist(const char *s, int pos)
 {
     loopi(pos) if(!parselist(s)) return newstring("");

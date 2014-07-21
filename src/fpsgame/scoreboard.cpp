@@ -421,7 +421,6 @@ namespace game
 
 			if(showextinfo && scoreboardcountry)
 			{
-				g.space(1);
 				g.pushlist();
 				g.text("country", 0xFFFF80);
 				loopv(spectators)
@@ -431,8 +430,9 @@ namespace game
 									const char *country = (scoreboardcountry&2)? countrycode:
 															(scoreboardcountry&4)? GeoIP_country_name_by_ipnum(geoip, endianswap(spectators[i]->ip)): "";
 									if (scoreboardcountry&1) formatstring(icon)("%s.png", countrycode);
-									g.textf("%s", 0xFFFFDD, (scoreboardcountry&1)? icon: NULL, country);
+									g.textf("%s ", 0xFFFFDD, (scoreboardcountry&1)? icon: NULL, country);
 								}
+				//g.space(1);
 				g.poplist();
 			}
 
@@ -517,7 +517,7 @@ namespace game
 	string extdesc, extmap;
 	int extnumplayers, extmaxplayers, extpaused, extgamemode, extgamelimit, extgamespeed, extmastermode;
 
-	struct extplayer_ { string name, team; int cn, ip, lastseen, frags, flags, deaths, acc, kpd, ping, state, privilege, tks; };
+	struct extplayer_ { string name, team; int cn, ip, lastseen, frags, flags, deaths, acc, ping, state, privilege, tks; float kpd; };
 	vector<extplayer_> extplayers;
 
 	struct extscoregroup : teamscore
@@ -621,6 +621,7 @@ namespace game
 				o->frags = getint(p);
 				o->flags = getint(p);
 				o->deaths = getint(p);
+				o->kpd = (float)o->frags/max(1, o->deaths);
 				o->tks = getint(p);
 				o->acc = getint(p);
 				getint(p);
@@ -641,9 +642,9 @@ namespace game
 					loopv(extplayers) if (extplayers[i].cn == cn) extplayers[i].lastseen = lastmillis;
 				}
 				loopv(extplayers) if (extplayers[i].lastseen < lastmillis) extplayers.remove(i--);
+				lastinforesp_ = lastmillis;
 			}
 		}
-		lastinforesp_ = lastmillis;
 		return true;
 	}
 
@@ -707,7 +708,7 @@ namespace game
         }
         loopi(numgroups) extgroups[i]->players.sort(extplayersort);
         extspectators.sort(extplayersort);
-        extgroups.sort(extscoregroupcmp, 0, numgroups);
+        //extgroups.sort(extscoregroupcmp, 0, numgroups);
         return numgroups;
     }
 
@@ -803,7 +804,7 @@ namespace game
             if((k%2)==0) g.pushlist(); // horizontal
             
             extscoregroup &sg = *extgroups[k];
-            int bgcolor = sg.team && m_check(extgamemode, M_TEAM) ? (isteam("good", sg.team) ? 0x3030C0 : 0xC03030) : 0,
+            int bgcolor = sg.team && m_check(extgamemode, M_TEAM) ? (!strcmp("good", sg.team) ? 0x3030C0 : 0xC03030) : 0,
                 fgcolor = 0xFFFF80;
 
             g.pushlist(); // vertical
@@ -925,7 +926,6 @@ namespace game
 
 			if(scoreboardcountry)
             {
-                g.space(1);
 				g.pushlist();
 				g.strut(6);
 				g.text("country", fgcolor);
@@ -939,6 +939,7 @@ namespace game
 									g.textf("%s", 0xFFFFDD, (scoreboardcountry&1)? icon: NULL, country);
 								}
 							  );
+                g.space(1);
 				g.poplist();
             }
 
@@ -992,7 +993,6 @@ namespace game
 
 			if(scoreboardcountry)
 			{
-				g.space(1);
 				g.pushlist();
 				g.text("country", 0xFFFF80);
 				loopv(extspectators)
@@ -1002,8 +1002,9 @@ namespace game
 									const char *country = (scoreboardcountry&2)? countrycode:
 															(scoreboardcountry&4)? GeoIP_country_name_by_ipnum(geoip, endianswap(extspectators[i]->ip)): "";
 									if (scoreboardcountry&1) formatstring(icon)("%s.png", countrycode);
-									g.textf("%s", 0xFFFFDD, (scoreboardcountry&1)? icon: NULL, country);
+									g.textf("%s ", 0xFFFFDD, (scoreboardcountry&1)? icon: NULL, country);
 								}
+				//g.space(1);
 				g.poplist();
 			}
 
@@ -1014,17 +1015,6 @@ namespace game
 	VARP(whoisenabled, 0, 1, 1);
 	struct whoisent { uint ip; vector<char *> names; };
 	vector<whoisent> wies;
-
-	void splitlist(const char *s, vector<char *> &elems)
-	{
-		const char *start = s, *end;
-		while(end = strchr(start, ' '))
-		{
-			elems.add(newstring(start, end-start));
-			start = end+1;
-		}
-		if (start[0]) elems.add(newstring(start, s+strlen(s)-start));
-	}
 
 	ICOMMAND(whoisentry, "ss", (const char *ip, const char *names),
 	{

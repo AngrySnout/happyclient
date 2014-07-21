@@ -709,6 +709,11 @@ namespace game
     extern int respawnent;
     extern int following;
     extern int smoothmove, smoothdist;
+	extern int recordstats;
+	extern int stats_damage;
+	extern int stats_total_damage;
+	extern int stats_accuracy;
+	extern int stats_shots;
 
     extern bool clientoption(const char *arg);
     extern fpsent *getclient(int cn);
@@ -816,7 +821,6 @@ namespace game
 	extern vector<char *> *playernames(int cn);
 	extern void addplayerwhois(int cn);
 	extern void whois(const int cn, bool msg = true);
-	extern void splitlist(const char *s, vector<char *> &elems);
 
 
     // render

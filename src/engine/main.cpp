@@ -1227,6 +1227,12 @@ int main(int argc, char **argv)
     identflags |= IDF_PERSIST;
 
     if(execfile("once.cfg", false)) remove(findfile("once.cfg", "rb"));
+	
+	if (ircautoconn)
+	{
+		ircnewnet(IRCT_CLIENT, ircname_, irchost_, ircport_, ircnick_);
+		ircnewchan(IRCCT_AUTO, ircname_, ircchan_);
+	}
 
     if(load)
     {

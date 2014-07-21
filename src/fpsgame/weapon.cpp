@@ -562,7 +562,6 @@ namespace game
 
     VARP(muzzleflash, 0, 1, 1);
     VARP(muzzlelight, 0, 1, 1);
-	VARHSC(rifletrailcolored, 0, 1, 1);
 	VARHSC(rifletraillightning, 0, 0, 1);
 
     void shoteffects(int gun, const vec &from, const vec &to, fpsent *d, bool local, int id, int prevaction)     // create visual effect from a shot
@@ -626,9 +625,8 @@ namespace game
 
             case GUN_RIFLE:
                 particle_splash(PART_SPARK, 200, 250, to, 0xB49B4B, 0.24f);
-				if (rifletraillightning) particle_flare(hudgunorigin(gun, from, to, d), to, 800, PART_LIGHTNING, strcmp(d->team, player1->team) ? 0xFF2222 : 0x2222FF, 1.0f);
-				else if (!rifletrailcolored) particle_trail(PART_SMOKE, 500, hudgunorigin(gun, from, to, d), to, 0x404040, 0.6f, 20);
-                else particle_trail(PART_SMOKE, 500, hudgunorigin(gun, from, to, d), to, strcmp(d->team, player1->team) ? 0xAA2222 : 0x2222AA, 0.6f, 20);
+				if (rifletraillightning) particle_flare(hudgunorigin(gun, from, to, d), to, 800, PART_LIGHTNING, 0x22FF22, 1.0f);
+				else particle_trail(PART_SMOKE, 500, hudgunorigin(gun, from, to, d), to, 0x404040, 0.6f, 20);
                 if(muzzleflash && d->muzzle.x >= 0)
                     particle_flare(d->muzzle, d->muzzle, 150, PART_MUZZLE_FLASH3, 0xFFFFFF, 1.25f, d);
                 if(!local) adddecal(DECAL_BULLET, to, vec(from).sub(to).normalize(), 3.0f);
@@ -797,6 +795,12 @@ namespace game
 
         if(d==player1 || d->ai)
         {
+			if (recordstats)
+			{
+				stats_total_damage += guns[d->gunselect].damage*(d->quadmillis ? 4 : 1)*guns[d->gunselect].rays;
+				stats_accuracy = stats_total_damage*100/max(1, stats_damage);
+				stats_shots++;
+			}
             addmsg(N_SHOOT, "rci2i6iv", d, lastmillis-maptime, d->gunselect,
                    (int)(from.x*DMF), (int)(from.y*DMF), (int)(from.z*DMF),
                    (int)(to.x*DMF), (int)(to.y*DMF), (int)(to.z*DMF),

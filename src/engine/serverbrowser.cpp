@@ -508,6 +508,7 @@ void checkpings()
         if(millis >= lastreset && rtt < servpingdecay) si->addping(rtt, millis);
 		si->numplayers = getint(p);
 		int numattr = getint(p);
+		si->attr.setsize(0);
         loopj(numattr) { int attr = getint(p); if(p.overread()) break; si->attr.add(attr); }
         getstring(text, p);
         filtertext(si->map, text, false);
@@ -611,6 +612,29 @@ const char *showservers(g3d_gui *cgui, uint *header, int pagemin, int pagemax)
     selectedserver = sc;
     return "connectselected";
 }
+
+const char *quickserver(const char *name, const char *host, const int port)
+{
+	loopv(servers)
+	{
+		serverinfo *si = servers[i];
+		if (!strcmp(si->name, host) && si->port == port && si->attr.length() >= 5)
+		{
+			char color;
+			switch (si->attr[4])
+			{
+				case 2:			color = 'y'; break;
+				case 3: case 4: color = 'r'; break;
+				default:		color = 'w';
+			}
+			static string res;
+			formatstring(res)("\f%c%s\fv(\fw%d/%d\fv) ", color, name, si->numplayers, si->attr[3]);
+			return res;
+		}
+	}
+	return name;
+}
+ICOMMAND(quickserver, "ssi", (const char *name, const char *host, const int *port), result(quickserver(name, host, *port)));
 
 VARHSC(serverpreview, 0, 1, 1);
 uint serverpreviewhost = 0;
@@ -925,9 +949,26 @@ const char *showplayers(g3d_gui *cgui, uint *header, int pagemin)
 		cgui->pushlist();
 		cgui->text("server", 0xFFFF80, 0);
 		cgui->strut(30);
-		for (int j = 0; j < min(filteredpeis->length()-i*pagemin, pagemin); j++)  if(cgui->buttonf("%s ", 0xFFFFDD, NULL, (*filteredpeis)[j+i*pagemin].serv->sdesc? (*filteredpeis)[j+i*pagemin].serv->sdesc: "")&G3D_UP)
+		for (int j = 0; j < min(filteredpeis->length()-i*pagemin, pagemin); j++)
 		{
-			selplserv = (*filteredpeis)[j+i*pagemin].serv;
+			serverinfo *si = (*filteredpeis)[j+i*pagemin].serv;
+			string res;
+			if (si->attr.length() >= 5)
+			{
+				char color;
+				switch (si->attr[4])
+				{
+					case 2:			color = 'y'; break;
+					case 3: case 4: color = 'r'; break;
+					default:		color = 'w';
+				}
+				formatstring(res)("\f%c%s\fv (\fw%d/%d\fv) ", color, si->sdesc, si->numplayers, si->attr[3]);
+			} else formatstring(res)("%s %d ", si->name, si->port);
+
+			if(cgui->buttonf("%s", 0xFFFFDD, NULL, res)&G3D_UP)
+			{
+				selplserv = (*filteredpeis)[j+i*pagemin].serv;
+			}
 		}
 		cgui->poplist();
 

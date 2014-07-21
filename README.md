@@ -1,4 +1,4 @@
-# [happy] Sauerbraten Client V0.5 (Alpha)
+# [happy] Sauerbraten Client V0.9.1 (Alpha)
 
 A custom client for the open-source game [Cube 2: Sauerbraten](http://sauerbraten.org/).
 
@@ -30,7 +30,6 @@ It is designed to be a near perfect client, combining functionality with appeara
 		```
 		/bind v [sayteam (concatword "No problem " $teamkiller "!")]
 		```).
-- Colored rifle shot trails.
 - Can make rifle shots look like lightning.
 - Highlight ammo when less than a specific amount.
 - Whois player tracking (local database, used like "/whois [cn]" and "/whoisname [name] [exact_ci_match]", or from the master menu).
@@ -39,6 +38,9 @@ It is designed to be a near perfect client, combining functionality with appeara
 - Extra console for frags with a kill icon.
 - Quick team chat.
 - New background.
+- In-game IRC.
+- Global stats tracking.
+- Quick connect.
 
 ## Upcoming
 
@@ -47,7 +49,6 @@ It is designed to be a near perfect client, combining functionality with appeara
 - Auto record and search through demos.
 - Weapon specific kill icons.
 - Friends and clans lists.
-- In-game IRC.
 - Player name auto-complete.
 - Event system.
 - Cubescript vectors.

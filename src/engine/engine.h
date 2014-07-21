@@ -479,6 +479,8 @@ extern void clientkeepalive();
 extern hashset<ident> idents;
 extern int identflags;
 
+extern void splitlist(const char *s, vector<char *> &elems);
+
 extern void clearoverrides();
 extern void writecfg(const char *name = NULL, bool hsc = false);
 

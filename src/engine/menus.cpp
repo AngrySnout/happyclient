@@ -591,16 +591,6 @@ void guiextscoreboard()
     }
 }
 
-void guiirc(const char *s)
-{
-    extern bool ircgui(g3d_gui *g, const char *s);
-    if(cgui)
-    {
-        if(!ircgui(cgui, s) && shouldclearmenu) clearlater = true;
-    }
-}
-ICOMMAND(ircgui, "s", (char *s), guiirc(s));
-
 void notifywelcome()
 {
     if(guiserversmenu)

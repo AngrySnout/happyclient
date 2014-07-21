@@ -72,6 +72,12 @@ struct ircnet : irclines
 };
 
 extern vector<ircnet *> ircnets;
+extern int ircautoconn;
+extern char *ircname_;
+extern char *irchost_;
+extern int ircport_;
+extern char *ircnick_;
+extern char *ircchan_;
 
 extern ircnet *ircfind(const char *name);
 extern void ircestablish(ircnet *n);

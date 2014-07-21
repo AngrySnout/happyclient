@@ -256,6 +256,7 @@ static void text_color(char c, char *stack, int size, int &sp, bvec color, int a
 				else if (t < 300) color = bvec(192,  64, 192);	// magenta
 				else if (t < 400) color = bvec(255,  64,  64);	// red: important errors
 				else if (t < 500) color = bvec(255, 128,   0);	// orange
+				break;
 			}
 
 			case 'i':	//colorloop
@@ -270,6 +271,7 @@ static void text_color(char c, char *stack, int size, int &sp, bvec color, int a
 				if (t < -4000) t += 12000;
 				int b = (t<4000)? clamp(64+(128*t)/4000, 64, 192): clamp(192-(128*(t-4000))/4000, 64, 192);
 				color = bvec( r, g, b);
+				break;
 			}
             // provided color: everything else
         }

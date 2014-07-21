@@ -9,17 +9,18 @@ namespace game
 
 	VARHSC(recordstats, 0, 0, 0x7FFFFFFF);
 
-	VAR(stats_frags, 0, 0, 0x7FFFFFFF);
-	VAR(stats_chainsaw_frags, 0, 0, 0x7FFFFFFF);
-	VAR(stats_deaths, 0, 0, 0x7FFFFFFF);
-	VAR(stats_kpd, 0, 0, 0x7FFFFFFF);
-	VAR(stats_flags, 0, 0, 0x7FFFFFFF);
-	VAR(stats_accuracy, 0, 0, 0x7FFFFFFF);
-	VAR(stats_teamkills, 0, 0, 0x7FFFFFFF);
-	VAR(stats_got_teamkilled, 0, 0, 0x7FFFFFFF);
-	VAR(stats_suicides, 0, 0, 0x7FFFFFFF);
-	VAR(stats_damage, 0, 0, 0x7FFFFFFF);
-	VAR(stats_time, 0, 0, 0x7FFFFFFF);
+	VARHSC(stats_frags, 0, 0, 0x7FFFFFFF);
+	VARHSC(stats_shots, 0, 0, 0x7FFFFFFF);
+	VARHSC(stats_deaths, 0, 0, 0x7FFFFFFF);
+	VARHSC(stats_kpd, 0, 0, 0x7FFFFFFF);
+	VARHSC(stats_flags, 0, 0, 0x7FFFFFFF);
+	VARHSC(stats_accuracy, 0, 0, 0x7FFFFFFF);
+	VARHSC(stats_teamkills, 0, 0, 0x7FFFFFFF);
+	VARHSC(stats_got_teamkilled, 0, 0, 0x7FFFFFFF);
+	VARHSC(stats_suicides, 0, 0, 0x7FFFFFFF);
+	VARHSC(stats_damage, 0, 0, 0x7FFFFFFF);
+	VARHSC(stats_time, 0, 0, 0x7FFFFFFF);
+	VARHSC(stats_total_damage, 0, 0, 0x7FFFFFFF);
 
     int following = -1, followdir = 0;
 
@@ -285,6 +286,16 @@ namespace game
             else if(cmode) cmode->checkitems(player1);
         }
         if(player1->clientnum>=0) c2sinfo();   // do this last, to reduce the effective frame lag
+		if (recordstats)
+		{
+			static int dtime = 0;
+			dtime += curtime;
+			if (dtime >= 1000)
+			{
+				dtime -= 1000;
+				stats_time++;
+			}
+		}
     }
 
     void spawnplayer(fpsent *d)   // place at random spawn
@@ -350,6 +361,12 @@ namespace game
     void damaged(int damage, fpsent *d, fpsent *actor, bool local)
     {
         if((d->state!=CS_ALIVE && d->state != CS_LAGGED && d->state != CS_SPAWNING) || intermission) return;
+
+		if (recordstats && actor == player1)
+		{
+			stats_damage += damage;
+			stats_accuracy = stats_total_damage*100/max(1, stats_damage);
+		}
 
         if(local) damage = d->dodamage(damage);
         else if(actor==player1) return;
@@ -423,6 +440,15 @@ namespace game
             return;
         }
         else if((d->state!=CS_ALIVE && d->state != CS_LAGGED && d->state != CS_SPAWNING) || intermission) return;
+
+		if (recordstats)
+		{
+			if (d == player1 && d != actor) stats_frags++;
+			else if (actor == player1 && d != actor) stats_deaths++;
+			else if (d == actor) stats_suicides++;
+			else if (isteam(d->team, actor->team)) stats_got_teamkilled++;
+			stats_kpd = stats_frags/max(1, stats_deaths);
+		}
 
         fpsent *h = followingplayer();
         if(!h) h = player1;
