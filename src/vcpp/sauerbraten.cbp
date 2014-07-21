@@ -7,7 +7,7 @@
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="client64">
-				<Option output="..\..\bin64\sauerbraten.exe" prefix_auto="0" extension_auto="0" />
+				<Option output="..\..\bin64\sauerbraten_hsc.exe" prefix_auto="0" extension_auto="0" />
 				<Option working_dir="..\..\" />
 				<Option object_output=".objs\client64" />
 				<Option type="0" />
@@ -51,7 +51,7 @@
 				</Environment>
 			</Target>
 			<Target title="client32">
-				<Option output="..\..\bin\sauerbraten.exe" prefix_auto="0" extension_auto="0" />
+				<Option output="..\..\bin\sauerbraten_hsc.exe" prefix_auto="0" extension_auto="0" />
 				<Option working_dir="..\..\" />
 				<Option object_output=".objs\client32" />
 				<Option type="0" />
@@ -119,6 +119,8 @@
 		<Unit filename="..\engine\glare.cpp" />
 		<Unit filename="..\engine\grass.cpp" />
 		<Unit filename="..\engine\iqm.h" />
+		<Unit filename="..\engine\irc.cpp" />
+		<Unit filename="..\engine\irc.h" />
 		<Unit filename="..\engine\lensflare.h" />
 		<Unit filename="..\engine\lightmap.cpp" />
 		<Unit filename="..\engine\lightmap.h" />
