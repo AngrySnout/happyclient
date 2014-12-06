@@ -586,15 +586,12 @@ namespace game
     void sendclipboard()
     {
         uchar *outbuf = NULL;
-        //int inlen = 0, outlen = 0
-        int inlen = 214748364, outlen = 16;
-        //if(!packeditinfo(localedit, inlen, outbuf, outlen))
-        //{
-        //    outbuf = NULL;
-        //    inlen = outlen = 0;
-        //}
-		uchar mstr[] = "abcdefghijklmnop";
-		outbuf = mstr;
+        int inlen = 0, outlen = 0;
+        if(!packeditinfo(localedit, inlen, outbuf, outlen))
+        {
+            outbuf = NULL;
+            inlen = outlen = 0;
+        }
         packetbuf p(16 + outlen, ENET_PACKET_FLAG_RELIABLE);
         putint(p, N_CLIPBOARD);
         putint(p, inlen);
@@ -603,8 +600,6 @@ namespace game
         sendclientpacket(p.finalize(), 1);
         needclipboard = -1;
     }
-
-	COMMAND(sendclipboard, "");
 
     void edittrigger(const selinfo &sel, int op, int arg1, int arg2, int arg3)
     {
@@ -1046,7 +1041,7 @@ namespace game
 			if (!cl) return true;
 			lastinforesp = lastmillis;
 			getint(p);
-			getstring(cl->name, p);
+			getstring(text, p);
 			getstring(text, p);
 			getint(p);
 			getint(p);
@@ -1062,9 +1057,10 @@ namespace game
 			p.get((uchar*)&ip, 3);
 			if (cl->ip != ip)
 			{
+				//conoutf("%s %s", GeoIP_num_to_addr(geoip, endianswap(ip)
 				cl->ip = ip;
 				addplayerwhois(cn);
-				whois(cn, false);
+				if (globalwhois) whois(cn);
 			}
 		}
 		return true;
@@ -1082,7 +1078,7 @@ namespace game
 
 		if (scoreboardextinfo)
 		{
-			if (lastmillis-lastinfo > 5000)
+			if (lastmillis-lastinfo > extinfoupdatefreq)
 			{
 				const ENetAddress *addressp = connectedpeer();
 				if (addressp)
@@ -1627,6 +1623,7 @@ namespace game
                 getstring(text, p);
                 filtertext(d->team, text, false, MAXTEAMLEN);
                 d->playermodel = getint(p);
+				d->ip = 0;
                 break;
             }
 
