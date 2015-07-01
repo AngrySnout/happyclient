@@ -92,7 +92,7 @@ namespace game
         }
         if(dead) glEnd();
 	}
-        
+
     #include "capture.h"
     #include "ctf.h"
     #include "collect.h"
@@ -824,11 +824,13 @@ namespace game
         if(editmode) toggleedit();
 		extern int lastinfo;
 		lastinfo = -20000;
+		setupdemorecord();
     }
 
     void gamedisconnect(bool cleanup)
     {
         if(remote) stopfollowing();
+		enddemorecord();
         ignores.setsize(0);
         connected = remote = false;
         player1->clientnum = -1;
@@ -1057,7 +1059,6 @@ namespace game
 			p.get((uchar*)&ip, 3);
 			if (cl->ip != ip)
 			{
-				//conoutf("%s %s", GeoIP_num_to_addr(geoip, endianswap(ip)
 				cl->ip = ip;
 				addplayerwhois(cn);
 				if (globalwhois) whois(cn);
@@ -1078,7 +1079,7 @@ namespace game
 
 		if (scoreboardextinfo)
 		{
-			if (lastmillis-lastinfo > extinfoupdatefreq)
+			if (totalmillis-lastinfo > extinfoupdatefreq)
 			{
 				const ENetAddress *addressp = connectedpeer();
 				if (addressp)
@@ -1089,7 +1090,7 @@ namespace game
 					putint(p, EXT_PLAYERSTATS);
 					putint(p, -1);
 					updateextinfo(extinfosock, addressp->host, server::serverinfoport(addressp->port), p);
-					lastinfo = lastmillis;
+					lastinfo = totalmillis;
 				}
 			}
 			checkextinfo(extinfosock, extplayerresponse);
@@ -1148,7 +1149,7 @@ namespace game
             d->lastupdate = totalmillis;
         }
     }
-
+	
     void parsepositions(ucharbuf &p)
     {
         int type;
@@ -1284,16 +1285,14 @@ namespace game
 
     extern int deathscore;
 	
-    bool demonextmatch = false;
+	VARHSC(recordlocaldemo, 0, 0, 1);
     stream *demotmp = NULL, *demorecord = NULL;
 
 	void enddemorecord()
     {
         if(!demorecord) return;
-
         DELETEP(demorecord);
-
-        if(!demotmp) return;
+		if(demotmp) DELETEP(demotmp);
     }
 
     void writedemo(int chan, void *data, int len)
@@ -1310,131 +1309,11 @@ namespace game
         writedemo(chan, data, len);
     }
 
-	void putinitclient(fpsent *ci, packetbuf &p)
+    void setupdemorecord()
     {
-        if(ci->aitype != AI_NONE)
-        {
-            putint(p, N_INITAI);
-            putint(p, ci->clientnum);
-            putint(p, ci->ownernum);
-            putint(p, ci->aitype);
-            putint(p, ci->skill);
-            putint(p, ci->playermodel);
-            sendstring(ci->name, p);
-            sendstring(ci->team, p);
-        }
-        else
-        {
-            putint(p, N_INITCLIENT);
-            putint(p, ci->clientnum);
-            sendstring(ci->name, p);
-            sendstring(ci->team, p);
-            putint(p, ci->playermodel);
-        }
-    }
+        if(!recordlocaldemo) return; // || !m_mp(gamemode) || m_edit)
 
-    void welcomeinitclient(packetbuf &p)
-    {
-        loopv(clients)
-        {
-            fpsent *ci = clients[i];
-            //if(!ci->connected) continue;
-
-            putinitclient(ci, p);
-        }
-    }
-
-    int welcomepacket(packetbuf &p)
-    {
-        putint(p, N_WELCOME);
-        putint(p, N_MAPCHANGE);
-		const char *mapname = getclientmap();
-        sendstring(mapname, p);
-        putint(p, gamemode);
-        putint(p, m_noitems ? 1 : 0);
-        if(m_timed && mapname[0])
-        {
-            putint(p, N_TIMEUP);
-            putint(p, gamemillis < maplimit && !intermission ? max((maplimit - gamemillis)/1000, 1) : 0);
-        }
-        if(!m_noitems)
-        {
-            putint(p, N_ITEMLIST);
-            //loopv(sents) if(sents[i].spawned)
-            //{
-            //    putint(p, i);
-            //    putint(p, sents[i].type);
-            //}
-            putint(p, -1);
-        }
-        bool hasmaster = false;
-        if(mastermode != MM_OPEN)
-        {
-            putint(p, N_CURRENTMASTER);
-            putint(p, mastermode);
-            hasmaster = true;
-        }
-        loopv(clients) if(clients[i]->privilege >= PRIV_MASTER)
-        {
-            if(!hasmaster)
-            {
-                putint(p, N_CURRENTMASTER);
-                putint(p, mastermode);
-                hasmaster = true;
-            }
-            putint(p, clients[i]->clientnum);
-            putint(p, clients[i]->privilege);
-        }
-        if(hasmaster) putint(p, -1);
-        if(gamepaused)
-        {
-            putint(p, N_PAUSEGAME);
-            putint(p, 1);
-            putint(p, -1);
-        }
-        if(gamespeed != 100)
-        {
-            putint(p, N_GAMESPEED);
-            putint(p, gamespeed);
-            putint(p, -1);
-        }
-        if(m_teammode)
-        {
-            putint(p, N_TEAMINFO);
-            //enumerates(teaminfos, teaminfo, t,
-            //    if(t.frags) { sendstring(t.team, p); putint(p, t.frags); }
-            //);
-            sendstring("", p);
-        }
-        putint(p, N_RESUME);
-        loopv(clients)
-        {
-            fpsent *oi = clients[i];
-            putint(p, oi->clientnum);
-            putint(p, oi->state);
-            putint(p, oi->frags);
-            putint(p, oi->flags);
-            putint(p, oi->quadmillis);
-
-			putint(p, oi->lifesequence);
-			putint(p, oi->health);
-			putint(p, oi->maxhealth);
-			putint(p, oi->armour);
-			putint(p, oi->armourtype);
-			putint(p, oi->gunselect);
-			loopi(GUN_PISTOL-GUN_SG+1) putint(p, oi->ammo[GUN_SG+i]);
-        }
-        putint(p, -1);
-        welcomeinitclient(p);
-        //if(smode) smode->initclient(ci, p, true);
-        return 1;
-    }
-
-    void setupdemorecord(bool addwelcome = false)
-    {
-        if(!m_mp(gamemode) || m_edit) return;
-
-        demotmp = opentempfile("demorecord", "w+b");
+        demotmp = opentempfile("demorecord_2.dmo", "w+b");
         if(!demotmp) return;
 
         stream *f = opengzfile(NULL, "wb", demotmp);
@@ -1449,14 +1328,17 @@ namespace game
         lilswap(&hdr.version, 2);
         demorecord->write(&hdr, sizeof(demoheader));
 
-		if (addwelcome)
+		/*if (addwelcome)
 		{
 			packetbuf p(MAXTRANS, ENET_PACKET_FLAG_RELIABLE);
 			welcomepacket(p);
 			writedemo(1, p.buf, p.len);
-		}
+		}*/
     }
 
+#include <curl/curl.h>
+#include "translate.h"
+	
     void parsemessages(int cn, fpsent *d, ucharbuf &p)
     {
         static char text[MAXTRANS];
@@ -1536,14 +1418,14 @@ namespace game
                 if(!d) return;
                 getstring(text, p);
                 filtertext(text, text);
-				highlighttext(text);
                 if(isignored(d->clientnum)) break;
+				//const char *tr = translatechat? translate(text): NULL;
                 if(d->state!=CS_DEAD && d->state!=CS_SPECTATOR)
                     particle_textcopy(d->abovehead(), text, PART_TEXT, 2000, 0x32FF64, 4.0f, -8);
-				if (d->state == CS_SPECTATOR) conoutf(CON_CHAT, "\f7%s:\f0 %s", colorname(d), text);
-				else if (isteam(d->team, player1->team)) conoutf(CON_CHAT, "\f1%s\f4:\f0 %s", colorname(d), text);
-				else conoutf(CON_CHAT, "\f3%s\f4:\f0 %s", colorname(d), text);
-                break;
+				if (d->state == CS_SPECTATOR) conoutf(CON_CHAT, "\f7%s:\f0 %s", colorname(d), highlighttext(text));
+				else if (isteam(d->team, player1->team)) conoutf(CON_CHAT, "\f1%s\f4:\f0 %s", colorname(d), highlighttext(text));
+				else conoutf(CON_CHAT, "\f3%s\f4:\f0 %s", colorname(d), highlighttext(text));
+				break;
             }
 
             case N_SAYTEAM:
@@ -1552,16 +1434,17 @@ namespace game
                 fpsent *t = getclient(tcn);
                 getstring(text, p);
                 filtertext(text, text);
-				highlighttext(text);
+				//const char *tr = translatechat? translate(text): NULL;
                 if(!t || isignored(t->clientnum)) break;
                 if(t->state!=CS_DEAD && t->state!=CS_SPECTATOR)
                     particle_textcopy(t->abovehead(), text, PART_TEXT, 2000, 0x6496FF, 4.0f, -8);
-                conoutf(CON_TEAMCHAT, "\f1%s\f4:\f1 %s", colorname(t), text);
+                conoutf(CON_TEAMCHAT, "\f1%s\f4:\f1 %s", colorname(t), highlighttext(text));
                 break;
             }
 
             case N_MAPCHANGE:
                 getstring(text, p);
+				//enddemorecord();
                 changemapserv(text, getint(p));
                 mapchanged = true;
                 if(getint(p)) entities::spawnitems();
@@ -2172,7 +2055,7 @@ namespace game
     void parsepacketclient(int chan, packetbuf &p)   // processes any updates from the server
     {
         if(p.packet->flags&ENET_PACKET_FLAG_UNSEQUENCED) return;
-		//recordpacket(chan, &p, p.length());
+		if (chan < 2) recordpacket(chan, p.buf, p.maxlen);
         switch(chan)
         {
             case 0:

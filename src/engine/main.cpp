@@ -17,6 +17,7 @@ void cleanup()
     extern void clear_mdls();    clear_mdls();
     extern void clear_sound();   clear_sound();
 	game::saveclearwhoisdb();
+	game::saveclearfriendslist();
     closelogfile();
     SDL_Quit();
 }
@@ -144,6 +145,13 @@ void restorebackground()
 }
 
 int backgroundmillis = -1;
+string curbackground = "";
+
+const char *getcurbackground()
+{
+	if (!curbackground[0]) formatstring(curbackground)("data/background_%d.jpg", rnd(9)+1);
+	return curbackground;
+}
 
 void renderbackground(const char *caption, Texture *mapshot, const char *mapname, const char *mapinfo, bool restore, bool force)
 {
@@ -195,7 +203,7 @@ void renderbackground(const char *caption, Texture *mapshot, const char *mapname
         glColor3f(1, 1, 1);
 		//defformatstring(curback)("data/background/%d.png", 1+((lastmillis%1000)*46)/1000);
 		//settexture(curback, 0);
-        settexture("data/background_.png", 0);
+        settexture(getcurbackground(), 0);
         //float bu = w*0.67f/256.0f + backgroundu, bv = h*0.67f/256.0f + backgroundv;
         float bu = w*0.95f/1920.0f, bv = h*0.95f/1080.0f;
 		// 0.0 - 0.3
@@ -453,6 +461,9 @@ void renderprogress(float bar, const char *text, GLuint tex, bool background)   
     glMatrixMode(GL_MODELVIEW);
     glPopMatrix();
     swapbuffers();
+
+	extern void checkinput();
+	if (background) checkinput();
 }
 
 void keyrepeat(bool on)
@@ -709,7 +720,7 @@ void resetgl()
        !reloadtexture("data/logo.png") ||
        !reloadtexture("data/logo_1024.png") || 
        !reloadtexture("data/background.png") ||
-       !reloadtexture("data/background_.png") ||
+       !reloadtexture(getcurbackground()) ||
        !reloadtexture("data/background_detail.png") ||
        !reloadtexture("data/background_decal.png") ||
        !reloadtexture("data/mapshot_frame.png") ||
@@ -1183,7 +1194,12 @@ int main(int argc, char **argv)
     logoutf("init: GeoIP");
 	geoip = GeoIP_open(findfile("data/GeoIP.dat", "r"), 0);
 	game::loadwhoisdb();
-	if (geoip == NULL) conoutf("\f3error: could not locate GeoIP.dat. GeoIP disabled\n");
+	if (geoip == NULL)
+	{
+		conoutf("\f3cannot find data/GeoIP.dat. GeoIP disabled");
+		geoipdisabled = true;
+	}
+	game::loadfriendslist();
 
     logoutf("init: cfg");
     execfile("data/keymap.cfg");
@@ -1277,6 +1293,7 @@ int main(int argc, char **argv)
 
         serverslice(false, 0);
 		ircslice();
+		game::translateProcess();
 
         if(frames) updatefpshistory(elapsed);
         frames++;

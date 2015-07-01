@@ -30,6 +30,8 @@ namespace game
 {
     extern void parseoptions(vector<const char *> &args);
 
+	extern void translateProcess();
+
     extern void gamedisconnect(bool cleanup);
     extern void parsepacketclient(int chan, packetbuf &p);
     extern void connectattempt(const char *name, const char *password, const ENetAddress &address);
@@ -98,9 +100,13 @@ namespace game
 	extern void loadwhoisdb();
 	extern void saveclearwhoisdb();
 	extern void addwhoisentry(uint ip, const char *name);
-	extern void whoisip(uint ip, const char *name);
+	extern void whoisip(uint ip, const char *name, bool msg = true);
 	extern void renderextscoreboard(g3d_gui &g);
 	extern void clearextinfo();
+	extern void loadfriendslist();
+	extern void saveclearfriendslist();
+	extern bool isfriendip(uint ip);
+	extern int getprotocolversion();
 } 
  
 namespace server

@@ -563,6 +563,7 @@ namespace game
     VARP(muzzleflash, 0, 1, 1);
     VARP(muzzlelight, 0, 1, 1);
 	VARHSC(rifletraillightning, 0, 0, 1);
+	VARHSC(bulletbluetrail, 0, 0, 1);
 
     void shoteffects(int gun, const vec &from, const vec &to, fpsent *d, bool local, int id, int prevaction)     // create visual effect from a shot
     {
@@ -591,8 +592,8 @@ namespace game
             case GUN_CG:
             case GUN_PISTOL:
             {
-                particle_splash(PART_SPARK, 200, 250, to, 0xB49B4B, 0.24f);
-                particle_flare(hudgunorigin(gun, from, to, d), to, 600, PART_STREAK, 0xFFC864, 0.28f);
+                particle_splash(PART_SPARK, 200, 250, to, bulletbluetrail? 0x4B9BB4: 0xB49B4B, 0.24f);
+                particle_flare(hudgunorigin(gun, from, to, d), to, 600, PART_STREAK, bulletbluetrail? 0x64C8FF: 0xFFC864, 0.28f); //0xFFC864
                 if(muzzleflash && d->muzzle.x >= 0)
                     particle_flare(d->muzzle, d->muzzle, gun==GUN_CG ? 100 : 200, PART_MUZZLE_FLASH1, 0xFFFFFF, gun==GUN_CG ? 2.25f : 1.25f, d);
                 if(!local) adddecal(DECAL_BULLET, to, vec(from).sub(to).normalize(), 2.0f);
@@ -795,10 +796,10 @@ namespace game
 
         if(d==player1 || d->ai)
         {
-			if (recordstats)
+			if (d==player1 && recordstats)
 			{
 				stats_total_damage += guns[d->gunselect].damage*(d->quadmillis ? 4 : 1)*guns[d->gunselect].rays;
-				stats_accuracy = stats_total_damage*100/max(1, stats_damage);
+				stats_accuracy = stats_damage*100/max(1, stats_total_damage);
 				stats_shots++;
 			}
             addmsg(N_SHOOT, "rci2i6iv", d, lastmillis-maptime, d->gunselect,

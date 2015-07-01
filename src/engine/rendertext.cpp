@@ -263,7 +263,6 @@ static void text_color(char c, char *stack, int size, int &sp, bvec color, int a
 			{
 				int t = lastmillis%24000;
 				t /= 2;
-				int y = (t<4000)? t: 0;
 				int r = (t<4000)? clamp(64+(128*t)/4000, 64, 192): clamp(192-(128*(t-4000))/4000, 64, 192);
 				t -= 4000;
 				int g = (t<4000)? clamp(64+(128*t)/4000, 64, 192): clamp(192-(128*(t-4000))/4000, 64, 192);

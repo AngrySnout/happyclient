@@ -463,10 +463,13 @@ extern void localconnect();
 extern bool serveroption(char *opt);
 
 // serverbrowser
+extern int geoipdisabled;
+
 extern bool resolverwait(const char *name, ENetAddress *address);
 extern int connectwithtimeout(ENetSocket sock, const char *hostname, const ENetAddress &address);
 extern void addserver(const char *name, int port = 0, const char *password = NULL, bool keep = false);
 extern void writeservercfg();
+extern void clearextplayers();
 
 // client
 extern void localdisconnect(bool cleanup = true);
@@ -526,7 +529,7 @@ extern bool interceptkey(int sym);
 
 extern float loadprogress;
 extern void renderbackground(const char *caption = NULL, Texture *mapshot = NULL, const char *mapname = NULL, const char *mapinfo = NULL, bool restore = false, bool force = false);
-extern void renderprogress(float bar, const char *text, GLuint tex = 0, bool background = false);
+extern void renderprogress(float bar, const char *text, GLuint tex = 0, bool background = true);
 
 extern void getfps(int &fps, int &bestdiff, int &worstdiff);
 extern void swapbuffers();

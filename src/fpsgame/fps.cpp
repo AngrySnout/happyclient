@@ -286,7 +286,7 @@ namespace game
             else if(cmode) cmode->checkitems(player1);
         }
         if(player1->clientnum>=0) c2sinfo();   // do this last, to reduce the effective frame lag
-		if (recordstats)
+		if (recordstats && connected)
 		{
 			static int dtime = 0;
 			dtime += curtime;
@@ -365,8 +365,9 @@ namespace game
 		if (recordstats && actor == player1)
 		{
 			stats_damage += damage;
-			stats_accuracy = stats_total_damage*100/max(1, stats_damage);
+			stats_accuracy = stats_damage*100/max(1, stats_total_damage);
 		}
+		if (actor != player1 && d != actor && !isteam(d->team, actor->team)) actor->totaldamage += damage;
 
         if(local) damage = d->dodamage(damage);
         else if(actor==player1) return;
@@ -429,6 +430,7 @@ namespace game
 	SVARHSC(autosorry, "Sorry %s");
 	VARHSC(doautonp, 0, 0, 1);
 	SVARHSC(autonp, "No problem %s");
+	VARHSC(gunicons, 0, 1, 1);
 
     void killed(fpsent *d, fpsent *actor)
     {
@@ -443,11 +445,29 @@ namespace game
 
 		if (recordstats)
 		{
-			if (d == player1 && d != actor) stats_frags++;
-			else if (actor == player1 && d != actor) stats_deaths++;
-			else if (d == actor) stats_suicides++;
-			else if (isteam(d->team, actor->team)) stats_got_teamkilled++;
-			stats_kpd = stats_frags/max(1, stats_deaths);
+			if (actor == player1 && d != actor) stats_frags++;
+			else if (actor == player1 && d == actor) stats_suicides++;
+
+			if (d == player1 && d != actor && isteam(d->team, actor->team)) stats_got_teamkilled++;
+			else if (actor == player1 && d != actor && isteam(d->team, actor->team)) stats_teamkills++;
+
+			if (d == player1) stats_deaths++;
+
+			stats_kpd = stats_frags*100/max(1, stats_deaths);
+		}
+
+		if (d == actor)
+		{
+			if (d != player1) actor->deaths++;
+		}
+		else if (isteam(d->team, actor->team))
+		{
+			actor->ext_teamkills;
+			if (d != player1) d->deaths++;
+		}
+		else if (d != player1)
+		{
+			d->deaths++;
 		}
 
         fpsent *h = followingplayer();
@@ -468,13 +488,17 @@ namespace game
         if(actor->type==ENT_AI)
             conoutf(contype, "\f2%s got killed by %s!", dname, aname);
         else if(d==actor || actor->type==ENT_INANIMATE)
-            conoutf(contype, "\f2%s \a1%s", dname, d==player1 ? "!" : ""); //suicided
+		{
+            if (gunicons) conoutf(contype, "\f2%s \a1%s", dname, d==player1 ? "!" : "");
+			else conoutf(contype, "\f2%s suicided%s", dname, d==player1 ? "!" : "");
+		}
         else if(isteam(d->team, actor->team))
         {
             contype |= CON_TEAMKILL;
             if(actor==player1)
 			{
-				conoutf(contype, "\f6%s \fs\f3\a0\fr (%s\f6)", aname, dname); //fragged a teammate
+				if (gunicons) conoutf(contype, "\f6%s \fs\f3\a0\fr %s\f6", aname, dname);
+				else conoutf(contype, "\f6%s \fs\f3fragged a teammate\fr %s\f6", aname, dname);
 				setsvar("teamkilled", d->name);
 				if (doautosorry)
 				{
@@ -485,7 +509,8 @@ namespace game
 			}
             else if(d==player1)
 			{
-				conoutf(contype, "\f6%s \fs\f3\a1\fr (%s\f6)", dname, aname); //got fragged by a teammate
+				if (gunicons) conoutf(contype, "\f6%s \fs\f3\a1\fr %s\f6", dname, aname);
+				else conoutf(contype, "\f6%s \fs\f3got fragged by a teammate\fr %s\f6", dname, aname);
 				setsvar("teamkiller", actor->name);
 				if (doautonp)
 				{
@@ -494,12 +519,24 @@ namespace game
 					else toserver(text);
 				}
 			}
-            else conoutf(contype, "\f2%s \fs\f6\a0\fr (%s\f2)", aname, dname); //fragged a teammate
+            else
+			{
+				if (gunicons) conoutf(contype, "\f2%s \fs\f6\a0\fr %s\f2", aname, dname);
+				else conoutf(contype, "\f2%s \fs\f6fragged a teammate\fr %s\f2", aname, dname);
+			}
         }
         else
         {
-            if(d==player1) conoutf(contype, "\f2%s \fs\f1\a1\fr by %s", dname, aname); //got fragged
-            else conoutf(contype, "\f2%s \fs\f0\a0\fr %s", aname, dname); //fragged
+            if(d==player1)
+			{
+				if (gunicons) conoutf(contype, "\f2%s \fs\f0\a1\fr %s", dname, aname);
+				else conoutf(contype, "\f2%s \fs\f0got fragged by\fr %s", dname, aname);
+			}
+            else
+			{
+				if (gunicons) conoutf(contype, "\f2%s \fs\f0\a0\fr %s", aname, dname);
+				else conoutf(contype, "\f2%s \fs\f0fragged\fr %s", aname, dname);
+			}
         }
         deathstate(d);
 		ai::killed(d, actor);
@@ -531,7 +568,7 @@ namespace game
             showscores(true);
             disablezoom();
 
-			if (doautogg) toserver(autogg);
+			if (doautogg && player1->state != CS_SPECTATOR) toserver(autogg);
             
             if(identexists("intermission")) execute("intermission");
         }
@@ -624,6 +661,8 @@ namespace game
             fpsent *d = players[i];
             d->frags = d->flags = 0;
             d->deaths = 0;
+			d->ext_accuracy = 0;
+			d->ext_teamkills = 0;
             d->totaldamage = 0;
             d->totalshots = 0;
             d->maxhealth = 100;
@@ -1134,6 +1173,11 @@ namespace game
         }
         return false;
     }
+
+	int getprotocolversion()
+	{
+		return PROTOCOL_VERSION;
+	}
 
     // any data written into this vector will get saved with the map data. Must take care to do own versioning, and endianess if applicable. Will not get called when loading maps from other games, so provide defaults.
     void writegamedata(vector<char> &extras) {}

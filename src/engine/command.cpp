@@ -2989,3 +2989,24 @@ void clearsleep_(int *clearoverrides)
 COMMANDN(clearsleep, clearsleep_, "i");
 #endif
 
+vector<char *> events_connect;
+
+int registerevent(const char *name, const char *code)
+{
+	if (!strcmp(name, "connect"))
+	{
+		events_connect.add(newstring(code));
+		return events_connect.length()-1;
+	}
+	else return -1;
+}
+
+void unregisterevent(int id, const char *name)
+{
+	if (id < 0) return;
+	if (!strcmp(name, "connect"))
+	{
+		delete[] events_connect[id];
+		events_connect[id] = NULL;
+	}
+}

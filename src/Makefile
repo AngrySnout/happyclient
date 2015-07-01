@@ -34,10 +34,10 @@ STD_LIBS=
 else
 STD_LIBS= -static-libgcc -static-libstdc++
 endif
-CLIENT_LIBS= -mwindows $(STD_LIBS) -L$(WINBIN) -L$(WINLIB) -lSDL -lSDL_image -lSDL_mixer -lzlib1 -lopengl32 -lenet -lws2_32 -lwinmm -lGeoIP
+CLIENT_LIBS= -mwindows $(STD_LIBS) -L$(WINBIN) -L$(WINLIB) -lSDL -lSDL_image -lSDL_mixer -lzlib1 -lopengl32 -lenet -lws2_32 -lwinmm -lGeoIP -lcurl
 else	
 CLIENT_INCLUDES= $(INCLUDES) -I/usr/X11R6/include `sdl-config --cflags`
-CLIENT_LIBS= -Lenet/.libs -lenet -L/usr/X11R6/lib -lX11 `sdl-config --libs` -lSDL_image -lSDL_mixer -lz -lGL -lGeoIP
+CLIENT_LIBS= -Lenet/.libs -lenet -L/usr/X11R6/lib -lX11 `sdl-config --libs` -lSDL_image -lSDL_mixer -lz -lGL -lGeoIP -lcurl
 endif
 ifeq ($(PLATFORM),Linux)
 CLIENT_LIBS+= -lrt
@@ -416,7 +416,7 @@ fpsgame/ai.o: fpsgame/ai.h
 fpsgame/client.o: fpsgame/game.h shared/cube.h shared/tools.h shared/geom.h
 fpsgame/client.o: shared/ents.h shared/command.h shared/iengine.h
 fpsgame/client.o: shared/igame.h fpsgame/ai.h fpsgame/capture.h fpsgame/ctf.h
-fpsgame/client.o: fpsgame/collect.h
+fpsgame/client.o: fpsgame/collect.h engine/translate.h
 fpsgame/entities.o: fpsgame/game.h shared/cube.h shared/tools.h shared/geom.h
 fpsgame/entities.o: shared/ents.h shared/command.h shared/iengine.h
 fpsgame/entities.o: shared/igame.h fpsgame/ai.h

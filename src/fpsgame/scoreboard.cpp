@@ -141,9 +141,10 @@ namespace game
 	VARHSC(scoreboardaccuracy, 0, 1, 1);
 	VARHSC(scoreboardkpd, 0, 0, 1);
 	VARHSC(scoreboardteamkills, 0, 0, 1);
+	VARHSC(scoreboarddamage, 0, 0, 1);
 	VARHSC(scoreboardcountry, 0, 3, 5);
 	VARHSC(scoreboardspecping, 0, 1, 1);
-
+	
     void renderscoreboard(g3d_gui &g, bool firstpass)
     {
 		bool showextinfo = (lastmillis-lastinforesp < 20000) && scoreboardextinfo;
@@ -291,18 +292,37 @@ namespace game
 				}
 			}
 
+			if(scoreboarddamage)
+			{
+				g.pushlist();
+				g.strut(6);
+				g.text("dmg", fgcolor);
+				loopscoregroup(o, g.textf("%d", 0xFFFFDD, NULL, o->totaldamage));
+				g.poplist();
+			}
+
             g.pushlist();
             g.text("name", fgcolor);
             g.strut(13);
             loopscoregroup(o, 
             {
                 int status = o->state!=CS_DEAD ? 0xFFFFDD : 0x606060;
+				bool isafriend = isfriend(&o->clientnum);
+				g.pushlist();
+				if (isafriend)
+				{
+					g.pushlist();
+					g.background(0x002200);
+				}
                 if(o->privilege)
                 {
                     status = (o->privilege>=PRIV_ADMIN) ? 0xFF8000 : (o->privilege==PRIV_AUTH)? 0x9040FF: 0x40FF80;
                     if(o->state==CS_DEAD) status = (status>>1)&0x7F7F7F;
                 }
-                g.textf("%s ", status, NULL, colorname(o));
+                g.textf("%s", status, NULL, colorname(o));
+				if (isafriend) g.poplist();
+				g.textf(" ", 0, NULL);
+				g.poplist();
             });
             g.poplist();
 
@@ -346,9 +366,8 @@ namespace game
                 g.poplist();
             }
 
-			if(showextinfo && scoreboardcountry)
+			if(!geoipdisabled && showextinfo && scoreboardcountry)
             {
-                g.space(1);
 				g.pushlist();
 				g.strut(6);
 				g.text("country", fgcolor);
@@ -388,6 +407,12 @@ namespace game
 			{
 				fpsent *o = spectators[i];
 				int status = 0xFFFFDD;
+				bool isafriend = isfriend(&o->clientnum);
+				if (isafriend)
+				{
+					g.pushlist();
+					g.background(0x002200);
+				}
 				if(o->privilege) status = o->privilege>=PRIV_ADMIN ? 0xFF8000 : 0x40FF80;
 				if(o==player1 && highlightscore)
 				{
@@ -395,6 +420,7 @@ namespace game
 					g.background(0x808080, 3);
 				}
 				g.text(colorname(o), status, "spectator");
+				if (isafriend) g.poplist();
 				if(o==player1 && highlightscore) g.poplist();
 			}
 			g.poplist();
@@ -419,7 +445,7 @@ namespace game
                 g.poplist();
             }
 
-			if(showextinfo && scoreboardcountry)
+			if(!geoipdisabled && showextinfo && scoreboardcountry)
 			{
 				g.pushlist();
 				g.text("country", 0xFFFF80);
@@ -515,7 +541,7 @@ namespace game
 	int lastinforesp_ = -20000;
 
 	string extdesc, extmap;
-	int extnumplayers, extmaxplayers, extpaused, extgamemode, extgamelimit, extgamespeed, extmastermode;
+	int extnumplayers, extmaxplayers, extpaused, extgamemode, extgamelimit, extgamespeed, extmastermode, extpausegamemillis;
 
 	struct extplayer_ { string name, team; int cn, ip, lastseen, frags, flags, deaths, acc, ping, state, privilege, tks; float kpd; };
 	vector<extplayer_> extplayers;
@@ -555,6 +581,7 @@ namespace game
 			{
 				extpaused = getint(p);
 				extgamespeed = getint(p);
+				extpausegamemillis = lastmillis;
 			}
 			else
 			{
@@ -574,7 +601,7 @@ namespace game
 			getint(p); getint(p);
 			string team;
 			getstring(team, p);
-			while (!p.overread())
+			while (!p.overread() && team[0])
 			{
 				bool found = false;
 				int score = getint(p);
@@ -582,6 +609,7 @@ namespace game
 				{
 					extgroups[i]->score = score;
 					found = true;
+					break;
 				}
 				if (!found)
 				{
@@ -656,7 +684,7 @@ namespace game
             else return false;
         }
         else if(b->state==CS_SPECTATOR) return true;
-        if(m_ctf || m_collect)
+        if(m_check(extgamemode, M_CTF) || m_check(extgamemode, M_COLLECT) || m_check(extgamemode, M_HOLD))
         {
             if(a->flags > b->flags) return true;
             if(a->flags < b->flags) return false;
@@ -682,8 +710,9 @@ namespace game
 
     static int extgroupplayers()
     {
-        int numgroups = 0;
+        int numgroups = extgroups.length();
         extspectators.setsize(0);
+		loopi(numgroups) extgroups[i]->players.setsize(0);
         loopv(extplayers)
         {
             extplayer_ *o = &extplayers[i];
@@ -694,21 +723,31 @@ namespace game
             loopj(numgroups)
             {
                 extscoregroup &g = *extgroups[j];
-                if(team!=g.team && (!team || !g.team || strcmp(team, g.team))) continue;
-                g.players.add(o);
-                found = true;
+				if(!team || (g.team && !strcmp(team, g.team)))
+				{
+					g.players.add(o);
+					found = true;
+					break;
+				}
             }
             if(found) continue;
-            if(numgroups>=extgroups.length()) extgroups.add(new extscoregroup);
+			extgroups.add(new extscoregroup);
             extscoregroup &g = *extgroups[numgroups++];
             g.team = team? newstring(team): NULL;
             if(!team) g.score = 0;
             g.players.setsize(0);
             g.players.add(o);
         }
+		loopi(numgroups) if (extgroups[i]->players.length() == 0)
+		{
+			delete[] extgroups[i]->team;
+			delete extgroups[i];
+			extgroups.remove(i);
+			numgroups--;
+		}
         loopi(numgroups) extgroups[i]->players.sort(extplayersort);
         extspectators.sort(extplayersort);
-        //extgroups.sort(extscoregroupcmp, 0, numgroups);
+        extgroups.sort(extscoregroupcmp);
         return numgroups;
     }
 
@@ -730,11 +769,13 @@ namespace game
 
 	ENetAddress extaddress;
 
+	VARHSC(extinfoupdatefreq, 1, 5000, 60000);
+
     void renderextscoreboard(g3d_gui &g)
     {
 		extaddress.host = serverpreviewhost;
 		extaddress.port = serverpreviewport;
-		if (lastmillis-lastinfo_ > 5000)
+		if (lastmillis-lastinfo_ > extinfoupdatefreq)
 		{
 			if (extaddress.host)
 			{
@@ -784,7 +825,10 @@ namespace game
             if(extgamelimit <= lastmillis) g.text("intermission", 0xFFFF80);
             else 
             {
-				int secs = max(extgamelimit-lastmillis, 0)/1000, mins = secs/60;
+				int secs, mins;
+				if (extpaused) secs = max(extgamelimit-extpausegamemillis, 0)/1000;
+				else secs = max(extgamelimit-lastmillis, 0)/1000;
+				mins = secs/60;
                 secs %= 60;
                 g.pushlist();
                 g.strut(mins >= 10 ? 4.5f : 3.5f);
@@ -893,12 +937,22 @@ namespace game
             loopextscoregroup(o, 
             {
                 int status = o->state!=CS_DEAD ? 0xFFFFDD : 0x606060;
-                if(o->privilege)
+				bool isafriend = isfriendip(o->ip);
+				g.pushlist();
+				if (isafriend)
+				{
+					g.pushlist();
+					g.background(0x002200);
+				}
+				if(o->privilege)
                 {
                     status = (o->privilege>=PRIV_ADMIN) ? 0xFF8000 : (o->privilege==PRIV_AUTH)? 0x9040FF: 0x40FF80;
                     if(o->state==CS_DEAD) status = (status>>1)&0x7F7F7F;
                 }
-                g.textf("%s ", status, NULL, extcolorname(o->cn, o->name));
+                g.textf("%s", status, NULL, extcolorname(o->cn, o->name));
+				if (isafriend) g.poplist();
+				g.textf(" ", 0, NULL);
+				g.poplist();
             });
             g.poplist();
 
@@ -924,7 +978,7 @@ namespace game
                 g.poplist();
             }
 
-			if(scoreboardcountry)
+			if(!geoipdisabled && scoreboardcountry)
             {
 				g.pushlist();
 				g.strut(6);
@@ -966,8 +1020,15 @@ namespace game
             {
                 extplayer_ *o = extspectators[i];
                 int status = 0xFFFFDD;
+				bool isafriend = isfriendip(o->ip);
+				if (isafriend)
+				{
+					g.pushlist();
+					g.background(0x002200);
+				}
                 if(o->privilege) status = (o->privilege>=PRIV_ADMIN) ? 0xFF8000 : (o->privilege==PRIV_AUTH)? 0x9040FF: 0x40FF80;
                 g.text(extcolorname(o->cn, o->name), status, "spectator");
+				if (isafriend) g.poplist();
             }
             g.poplist();
 
@@ -991,7 +1052,7 @@ namespace game
                 g.poplist();
             }
 
-			if(scoreboardcountry)
+			if(!geoipdisabled && scoreboardcountry)
 			{
 				g.pushlist();
 				g.text("country", 0xFFFF80);
@@ -1014,7 +1075,8 @@ namespace game
 
 	VARP(whoisenabled, 0, 1, 1);
 	struct whoisent { uint ip; vector<char *> names; };
-	vector<whoisent> wies;
+	hashtable<uint, whoisent> wies;
+	//vector<whoisent> wies;
 
 	ICOMMAND(whoisentry, "ss", (const char *ip, const char *names),
 	{
@@ -1023,7 +1085,7 @@ namespace game
 		wie.ip = endianswap(GeoIP_addr_to_num(ip));
 		wie.ip = wie.ip&0xFFFFFF;
 		splitlist(names, wie.names);
-		wies.add(wie);
+		wies.access(wie.ip, wie);
 	});
 
 	vector<char *> *playernames(int cn)
@@ -1031,40 +1093,33 @@ namespace game
 		fpsent *cl = getclient(cn);
 		if (!cl) return NULL;
 		int nip = cl->ip&0xFFFFFF;
-		for (int i = 0; i < wies.length(); i++)
-		{
-			if (wies[i].ip == nip)
-			{
-				return &wies[i].names;
-			}
-		}
-		return NULL;
+		whoisent *wie = wies.access(nip);
+		return wie? &wie->names: NULL;
 	}
 
 	void addwhoisentry(uint ip, const char *name)
 	{
 		if (!scoreboardextinfo || !whoisenabled) return;
 		int nip = ip&0xFFFFFF; //%(256*256*256)
-		bool found = false;
-		for (int i = 0; i < wies.length(); i++) if (wies[i].ip == nip)
+		whoisent *wie = wies.access(nip);
+		if (wie)
 		{
-			for (int j = 0; j < wies[i].names.length(); j++)
+			for (int j = 0; j < wie->names.length(); j++)
 			{
-				if (!strcmp(wies[i].names[j], name))
+				if (!strcmp(wie->names[j], name))
 				{
-					wies[i].names.remove(j);
+					wie->names.remove(j);
 					break;
 				}
 			}
-			wies[i].names.insert(0, newstring(name));
-			while (wies[i].names.length() > 15) delete[] wies[i].names.pop();
-			found = true;
+			wie->names.insert(0, newstring(name));
+			while (wie->names.length() > 15) delete[] wie->names.pop();
 		}
-		if (!found)
+		else
 		{
-			whoisent &wie = wies.add();
-			wie.ip = nip;
-			wie.names.add(newstring(name));
+			whoisent &wiea = wies[nip];
+			wiea.ip = nip;
+			wiea.names.add(newstring(name));
 		}
 	}
 
@@ -1077,51 +1132,50 @@ namespace game
 
 	VARHSC(globalwhois, 0, 1, 1);
 
-	void whoisip(uint ip, const char *name)
+	void whoisip(uint ip, const char *name, bool msg)
 	{
 		if (!scoreboardextinfo) { conoutf("\f3error: whois requires extinfo to be enabled"); return; }
 		if (!whoisenabled) { conoutf("\f3error: whois is disabled"); return; }
 		ip = ip&0xFFFFFF;
 		if (!ip) return;
-		for (int i = 0; i < wies.length(); i++)
+		whoisent *wie = wies.access(ip);
+		if (wie)
 		{
-			if (wies[i].ip == ip)
+			defformatstring(line)("\f0possible names for \f1%s\f0 are: \f3", name);
+			loopvj(wie->names)
 			{
-				defformatstring(line)("\f0possible names for \f1%s\f0 are: \f3", name);
-				loopvj(wies[i].names)
-				{
-					concatstring(line, wies[i].names[j]);
-					concatstring(line, " ");
-				}
-				conoutf(line);
+				concatstring(line, wie->names[j]);
+				concatstring(line, " ");
 			}
+			if (msg) conoutf(line);
+			else result(line);
+			return;
 		}
 	}
+	ICOMMAND(whoisip, "si", (const char *ip, const int *msg), { whoisip(endianswap(GeoIP_addr_to_num(ip))&0xFFFFFF, ip, !(msg&&*msg)); });
 
 	void whois(const int cn, bool msg)
 	{
-		if (!globalwhois && !msg) return;
 		if (!scoreboardextinfo) { if (msg) conoutf("\f3error: whois requires extinfo to be enabled"); return; }
 		if (!whoisenabled) { if (msg) conoutf("\f3error: whois is disabled"); return; }
 		fpsent *cl = getclient(cn);
 		if (!cl || !cl->ip) return;
 		int nip = cl->ip&0xFFFFFF;
 		if (!nip) return;
-		for (int i = 0; i < wies.length(); i++)
+		whoisent *wie = wies.access(nip);
+		if (wie)
 		{
-			if (wies[i].ip == nip)
+			defformatstring(line)("\f0possible names for \f1%s\f0 are: \f3", cl->name);
+			loopvj(wie->names)
 			{
-				defformatstring(line)("\f0possible names for \f1%s\f0 are: \f3", cl->name);
-				loopvj(wies[i].names)
-				{
-					concatstring(line, wies[i].names[j]);
-					concatstring(line, " ");
-				}
-				conoutf(line);
+				concatstring(line, wie->names[j]);
+				concatstring(line, " ");
 			}
+			if (msg) conoutf(line);
+			else result(line);
 		}
 	}
-	ICOMMAND(whois, "i", (const int *cn, bool msg), { whois(*cn, true); });
+	ICOMMAND(whois, "ii", (const int *cn, const int *msg), { whois(*cn, !(msg&&*msg)); });
 
 	void whoisname(const char *name, int exact)
 	{
@@ -1129,40 +1183,46 @@ namespace game
 		if (!whoisenabled) { conoutf("\f3error: whois is disabled"); return; }
 		if (!name || !name[0]) return;
 		conoutf("\f0everyone who used the name \f1%s\f0:\n\f6============", name);
-		for (int i = 0; i < wies.length(); i++)
+
+		string cname, bname;
+		if (!exact)
+		{
+			strcpy(cname, name);
+			strlwr(cname);
+		}
+
+		enumerate(wies, whoisent, wie,
 		{
 			bool found = false;
-			string cname, bname;
-			if (!exact)
-			{
-				strcpy(cname, name);
-				strlwr(cname);
-			}
-			loopvj(wies[i].names)
+			loopvj(wie.names)
 			{
 				if (!exact)
 				{
-					strcpy(bname, wies[i].names[j]);
+					strcpy(bname, wie.names[j]);
 					strlwr(bname);
 					if (strstr(bname, cname)) found = true;
 				}
-				else if (strcasecmp(wies[i].names[j], name) == 0) found = true;
+				else if (strcasecmp(wie.names[j], name) == 0) found = true;
 			}
 
 			if (found)
 			{
-				defformatstring(line)("\f0%d.%d.%d.* \f1%s\f0: \f3", wies[i].ip&0xFF, (wies[i].ip&0xFF00)>>8, (wies[i].ip&0xFF0000)>>16, GeoIP_country_name_by_ipnum(geoip, endianswap(wies[i].ip)));
-				loopvj(wies[i].names)
+				defformatstring(line)("\f0%d.%d.%d.* \f1%s\f0: \f3", wie.ip&0xFF, (wie.ip&0xFF00)>>8, (wie.ip&0xFF0000)>>16, geoipdisabled? "unknown": GeoIP_country_name_by_ipnum(geoip, endianswap(wie.ip)));
+				loopvj(wie.names)
 				{
-					concatstring(line, wies[i].names[j]);
+					concatstring(line, wie.names[j]);
 					concatstring(line, " ");
 				}
 				conoutf("%s", line);
 			}
-		}
+
+		});
+
 		conoutf("\f6============");
 	}
 	ICOMMAND(whoisname, "si", (const char *name, const int *exact), { whoisname(name, *exact); });
+
+	ICOMMAND(ipcountry, "s", (char *s), { geoipdisabled? conoutf("\f3GeoIP is disabled"): conoutf("\f0%s \f1is from \f3%s", s, GeoIP_country_name_by_addr(geoip, s)); });
 
 
 	void loadwhoisdb()
@@ -1173,22 +1233,91 @@ namespace game
 	void saveclearwhoisdb()
 	{
 		stream *f = openutf8file(path("whois.cfg", true), "w");
-		loopv(wies)
+		enumerate(wies, whoisent, wie,
 		{
-			f->printf("whoisentry %s ", GeoIP_num_to_addr(endianswap(wies[i].ip)));
+			f->printf("whoisentry %s ", GeoIP_num_to_addr(endianswap(wie.ip)));
 			char text[MAXTRANS];
 			text[0] = '\0';
-			for (int j = 0; j < wies[i].names.length(); j++)
+			for (int j = 0; j < wie.names.length(); j++)
 			{
-				concatstring(text, wies[i].names[j]);
-				if (j != wies[i].names.length()-1) concatstring(text, " ");
+				concatstring(text, wie.names[j]);
+				if (j != wie.names.length()-1) concatstring(text, " ");
 			}
 			f->putstring(escapestring(text));
 			f->printf("\n");
-			wies[i].names.deletearrays();
-		}
+			wie.names.deletearrays();
+		});
 		delete f;
-		wies.setsize(0);
+		wies.clear();
+	}
+	
+	hashtable<uint, uint> friends;
+	VARHSC(enablefriendlist, 0, 0, 1);
+
+	void addfriend(const int *cn)
+	{
+		if (!cn) return;
+		fpsent *ci = getclient(*cn);
+		if (!ci) return;
+		friends.access(ci->ip&0xFFFFFF, ci->ip&0xFFFFFF);
+	}
+	COMMAND(addfriend, "i");
+
+	void addfriendip(const char *ip)
+	{
+		int ipnum = endianswap(GeoIP_addr_to_num(ip))&0xFFFFFF;
+		friends.access(ipnum, ipnum);
+	}
+	COMMAND(addfriendip, "s");
+
+	void removefriend(const int *cn)
+	{
+		if (!cn) return;
+		fpsent *ci = getclient(*cn);
+		if (!ci) return;
+		friends.remove(ci->ip&0xFFFFFF);
+	}
+	COMMAND(removefriend, "i");
+
+	bool isfriend(const int *cn)
+	{
+		if (!cn)
+		{
+			intret(0);
+			return false;
+		}
+		fpsent *ci = getclient(*cn);
+		if (!ci)
+		{
+			intret(0);
+			return false;
+		}
+		if (friends.find(ci->ip&0xFFFFFF, 0))
+		{
+			intret(1);
+			return true;
+		}
+		intret(0);
+		return false;
+	}
+	COMMAND(isfriend, "i");
+
+	bool isfriendip(uint ip)
+	{
+		return friends.find(ip&0xFFFFFF, 0)!=0;
+	}
+
+	void loadfriendslist()
+	{
+		execfile("friends.cfg", false);
+	}
+
+	void saveclearfriendslist()
+	{
+		stream *f = openutf8file(path("friends.cfg", true), "w");
+		enumerate(friends, uint, fr, f->printf("addfriendip %s\n", GeoIP_num_to_addr(endianswap(fr))));
+		delete f;
+		friends.clear();
 	}
 }
 

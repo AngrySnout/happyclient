@@ -870,6 +870,7 @@ struct ctfclientmode : clientmode
             defformatstring(ds)("%d", score);
             particle_textcopy(d->abovehead(), ds, PART_TEXT, 2000, 0x32FF64, 4.0f, -8);
         }
+		else stats_flags++;
         d->flags = dflags;
         conoutf(CON_GAMEINFO, "%s scored for %s", teamcolorname(d), teamcolor("your team", ctfflagteam(team), "the enemy team"));
         playsound(team==ctfteamflag(player1->team) ? S_FLAGSCORE : S_FLAGFAIL);
@@ -881,6 +882,9 @@ struct ctfclientmode : clientmode
     {
         if(!flags.inrange(i)) return;
         flag &f = flags[i];
+
+		const vec &fp = f.pos();
+
         f.version = version;
         f.interploc = interpflagpos(f, f.interpangle);
         f.interptime = lastmillis;

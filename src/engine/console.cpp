@@ -95,6 +95,17 @@ void setconskip(int &skip, int filter, int n)
     }
 }
 
+const char *getchatconline(int line)
+{
+	int numl = conlines.length();
+	for (int i = 0; i < numl; i++)
+	{
+		if (!(conlines[i].type&(1<<8)) && !(conlines[i].type&(1<<9))) continue;
+		if (--line <= 0) return conlines[i].line;
+	}
+	return NULL;
+}
+
 ICOMMAND(conskip, "i", (int *n), setconskip(conskip, fullconsole ? fullconfilter : confilter, *n));
 ICOMMAND(miniconskip, "i", (int *n), setconskip(miniconskip, miniconfilter, *n));
 
@@ -153,10 +164,10 @@ int renderconsole(int w, int h, int abovehud)                   // render buffer
     extern void consolebox(int x1, int y1, int x2, int y2);
     if(fullconsole) consolebox(conpad, conpad, conwidth+conpad+2*conoff, conheight+conpad+2*conoff);
     
-    int y = drawconlines(conskip, fullconsole ? 0 : confade, fragconsole? conwidth/2: conwidth, conheight, conpad+conoff, fullconsole ? fullconfilter : confilter&(~CON_IRC));
+    int y = drawconlines(conskip, fullconsole ? 0 : confade, fragconsole? conwidth*2/3: conwidth, conheight, conpad+conoff, fullconsole ? fullconfilter : confilter&(~CON_IRC));
     if(!fullconsole && (miniconsize && miniconwidth))
 	{
-		if (fragconsole) drawconlines(0, confade, conwidth/2, conheight, conpad+conoff+conwidth/2, fragconfilter, conpad+conoff, 1, 1.2);
+		if (fragconsole) drawconlines(0, confade, conwidth/3, conheight, conpad+conoff+conwidth*2/3, fragconfilter, conpad+conoff, 1, 1.2);
         drawconlines(miniconskip, miniconfade, (miniconwidth*(w - 2*(conpad + conoff)))/100, min(FONTH*miniconsize, abovehud - y), conpad+conoff, miniconfilter|CON_IRC, abovehud, -1);
 	}
     return fullconsole ? conheight + 2*(conpad + conoff) : y;

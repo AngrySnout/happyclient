@@ -714,6 +714,7 @@ namespace game
 	extern int stats_total_damage;
 	extern int stats_accuracy;
 	extern int stats_shots;
+	extern int stats_flags;
 
     extern bool clientoption(const char *arg);
     extern fpsent *getclient(int cn);
@@ -757,6 +758,8 @@ namespace game
     extern void changemap(const char *name, int mode);
     extern void c2sinfo(bool force = false);
     extern void sendposition(fpsent *d, bool reliable = false);
+	extern void setupdemorecord();
+	extern void enddemorecord();
 
     // monster
     struct monster;
@@ -812,6 +815,8 @@ namespace game
 
     // scoreboard
 	extern int scoreboardextinfo;
+	extern int globalwhois;
+	extern int extinfoupdatefreq;
 
     extern void showscores(bool on);
     extern void getbestplayers(vector<fpsent *> &best);
@@ -821,6 +826,8 @@ namespace game
 	extern vector<char *> *playernames(int cn);
 	extern void addplayerwhois(int cn);
 	extern void whois(const int cn, bool msg = true);
+	extern bool isfriend(const int *cn);
+	extern bool isfriendip(uint ip);
 
 
     // render

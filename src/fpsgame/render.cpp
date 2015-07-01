@@ -187,6 +187,7 @@ namespace game
     }
 
     VARP(teamskins, 0, 0, 1);
+	VARHSC(teamhealthbar, 0, 0, 1);
 
     void rendergame(bool mainpass)
     {
@@ -212,7 +213,17 @@ namespace game
             renderplayer(d, getplayermodelinfo(d), team, 1, mainpass);
             copystring(d->info, colorname(d));
             if(d->maxhealth>100) { defformatstring(sn)(" +%d", d->maxhealth-100); concatstring(d->info, sn); }
-            if(d->state!=CS_DEAD) particle_text(d->abovehead(), d->info, PART_TEXT, 1, team ? (team==1 ? 0x6496FF : 0xFF4B19) : 0x1EC850, clamp(camera1->o.dist(d->abovehead()), 200.0f, 400.0f)/100.f);
+            if(d->state!=CS_DEAD)
+			{
+				particle_text(d->abovehead(), d->info, PART_TEXT, 1, team ? (team==1 ? 0x6496FF : 0xFF4B19) : 0x1EC850, clamp(camera1->o.dist(d->abovehead()), 200.0f, 400.0f)/100.f);
+				if (!m_insta && teamhealthbar && d != player1 && isteam(hudplayer()->team, d->team))
+				{
+					int maxarmour = (d->armourtype==A_BLUE)? 25: ((d->armourtype==A_GREEN)? 100: 200);
+					vec hbpos = d->abovehead();
+					hbpos.z += 2;
+					particle_meter(hbpos, (d->health+d->armour)/(float)(d->maxhealth+maxarmour), PART_METER, 1, 0x3219FF, 0xFFFFFF);
+				}
+			}
         }
         loopv(ragdolls)
         {

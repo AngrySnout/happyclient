@@ -28,9 +28,35 @@ FILE *getlogfile()
 void setlogfile(const char *fname)
 {
     closelogfile();
-    if(fname && fname[0])
+	char ffn[1000];
+	const char *rst;
+	if (fname && fname[0] && (rst = strstr(fname, "$DATE")))
+	{
+		copystring(ffn, fname, rst-fname+1);
+		ffn[rst-fname+1] = '\0';
+		string buf;
+		time_t tt = time(NULL);
+		strftime(buf, sizeof(buf), "%Y_%m_%d_%H_%M_%S", localtime(&tt));
+		concatstring(ffn, buf);
+		concatstring(ffn, rst+5);
+		rst = ffn;
+	}
+	else rst = fname;
+
+	if (rst && rst[0])
+	{
+		const char *sdir = findfile(parentdir(rst), "w");
+		char buf[1000];
+		formatstring(buf)("%s/", sdir);
+		if(!fileexists(buf, "w"))
+		{
+			createdir(buf);
+		}
+	}
+
+    if(rst && rst[0])
     {
-        fname = findfile(fname, "w");
+        fname = findfile(rst, "w");
         if(fname) logfile = fopen(fname, "w");
     }
     FILE *f = getlogfile();

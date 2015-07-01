@@ -179,6 +179,8 @@ extern void closelogfile();
 extern void logoutfv(const char *fmt, va_list args);
 extern void logoutf(const char *fmt, ...) PRINTFARGS(1, 2);
 
+extern const char *getchatconline(int line);
+
 // menus
 extern vec menuinfrontofplayer();
 extern void newgui(char *name, char *contents, char *header = NULL, char *init = NULL);
@@ -532,6 +534,7 @@ extern void g3d_limitscale(float scale);
 
 // serverbrowser
 extern GeoIP *geoip;
+extern int geoipdisabled;
 extern uint serverpreviewhost;
 extern int serverpreviewport;
 extern const char *extservinfo;

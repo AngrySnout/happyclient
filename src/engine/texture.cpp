@@ -3050,7 +3050,10 @@ void screenshot(char *filename)
     }
     else
     {
-        defformatstring(name)("screenshot_%d", totalmillis);
+		string buf2;
+		time_t tt = time(NULL);
+		strftime(buf2, sizeof(buf2), "%Y_%m_%d_%H_%M_%S", localtime(&tt));
+        defformatstring(name)("ss_%s_%d", buf2, totalmillis);
         concatstring(buf, name);
     }
     if(format < 0)

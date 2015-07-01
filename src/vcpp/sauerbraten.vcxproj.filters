@@ -300,6 +300,9 @@
     <ClInclude Include="..\engine\irc.h">
       <Filter>Engine\cs</Filter>
     </ClInclude>
+    <ClInclude Include="..\fpsgame\translate.h">
+      <Filter>FPS</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="FPS">
