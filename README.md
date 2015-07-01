@@ -20,7 +20,7 @@ Currently binaries are only available for the Windows platform, and I haven't te
 	7. Show teamkills.
 	8. Show spectators' pings.
 	9. Show country.
-	10. Show damage done.
+	10. Show damage delivered.
 	11. Different color for players using auth.
 	12. Highlight friends.
 - Server browser:
