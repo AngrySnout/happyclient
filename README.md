@@ -69,6 +69,7 @@ Currently binaries are only available for the Windows platform, and I haven't te
 							You are allowed to translate 1,000,000 letters per day but no more than 10,000,000 per month. Auto language detection is supported.
 	2. MyMemory:	When "trans_yandex_apikey" isn't set MyMemory translation is used. It does not require an API key.
 								You are allowed to translate 1,000 words per day, and if you provide a (valid) email address with "/trans_mymemory_email [email_address]", you can translate up to 10,000 words per day.
+
 	You can use these variables and commands to translate:
 	1. "/trans_to [language]" set to "en" by default, the language you want to translate to, as an [ISO 639-1 code](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes).
 	2. "/trans [text]" auto-detect language of text, translate it, and print the result on the console (works only with Yandex).
