@@ -367,7 +367,7 @@ namespace game
 			stats_damage += damage;
 			stats_accuracy = stats_damage*100/max(1, stats_total_damage);
 		}
-		if (actor != player1 && d != actor && !isteam(d->team, actor->team)) actor->totaldamage += damage;
+		if (actor != player1 && d != actor) actor->totaldamage += damage;
 
         if(local) damage = d->dodamage(damage);
         else if(actor==player1) return;

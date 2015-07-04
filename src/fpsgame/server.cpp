@@ -1210,6 +1210,9 @@ namespace server
         lilswap(&nextplayback, 1);
     }
 
+	ICOMMAND(demotime, "ii", (int *m, int *s), { demomillis = (m_overtime ? 15 : 10)*60000 - (*m*60 + *s)*1000; sendf(-1, 1, "rii", N_TIMEUP, (*m*60 + *s)); });
+	ICOMMAND(demoskip, "ii", (int *m, int *s), { demomillis = (*m*60 + *s)*1000; sendf(-1, 1, "rii", N_TIMEUP, (m_overtime ? 15 : 10)*60 - (*m*60 + *s)); });
+
     void readdemo()
     {
         if(!demoplayback) return;
