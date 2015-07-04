@@ -40,6 +40,7 @@ Currently binaries are only available for the Windows platform, and I haven't te
 	2. New backgrounds.
 	3. Global stats tracking.
 	4. Screenshots are named using the format "ss_Y_m_d_H_M_S_tm".
+	5. Commands "/demotime [minutes_left] [seconds_left]" and "/demoskip [minutes] [seconds]" to traverse a demo (only word forward).
 - Weapons:
 	1. Option to make rifle shots look like lightning.
 	2. Option to make pistol and chaingun shots blue.
