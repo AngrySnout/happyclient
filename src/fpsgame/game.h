@@ -758,8 +758,6 @@ namespace game
     extern void changemap(const char *name, int mode);
     extern void c2sinfo(bool force = false);
     extern void sendposition(fpsent *d, bool reliable = false);
-	extern void setupdemorecord();
-	extern void enddemorecord();
 
     // monster
     struct monster;
@@ -821,6 +819,7 @@ namespace game
     extern void showscores(bool on);
     extern void getbestplayers(vector<fpsent *> &best);
     extern void getbestteams(vector<const char *> &best);
+	extern hashset<teaminfo> teaminfos;
     extern void clearteaminfo();
     extern void setteaminfo(const char *team, int frags);
 	extern vector<char *> *playernames(int cn);

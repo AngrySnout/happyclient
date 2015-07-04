@@ -1,4 +1,5 @@
 #include "game.h"
+#include "cdemo.h"
 
 namespace game
 {
@@ -597,6 +598,7 @@ namespace game
         putint(p, inlen);
         putint(p, outlen);
         if(outlen > 0) p.put(outbuf, outlen);
+        cdemo::clipboard(inlen, outlen, outbuf);
         sendclientpacket(p.finalize(), 1);
         needclipboard = -1;
     }
@@ -795,6 +797,7 @@ namespace game
         int num = nums || numf ? 0 : numi, msgsize = server::msgsizelookup(type);
         if(msgsize && num!=msgsize) { fatal("inconsistent msg size for %d (%d != %d)", type, num, msgsize); }
         if(reliable) messagereliable = true;
+        cdemo::addmsghook(type, mcn, p);
         if(mcn != messagecn)
         {
             static uchar mbuf[16];
@@ -822,15 +825,14 @@ namespace game
         connected = true;
         remote = _remote;
         if(editmode) toggleedit();
+        cdemo::stop();
 		extern int lastinfo;
 		lastinfo = -20000;
-		setupdemorecord();
     }
 
     void gamedisconnect(bool cleanup)
     {
         if(remote) stopfollowing();
-		enddemorecord();
         ignores.setsize(0);
         connected = remote = false;
         player1->clientnum = -1;
@@ -853,6 +855,7 @@ namespace game
             nextmode = gamemode = INT_MAX;
             clientmap[0] = '\0';
         }
+		cdemo::stop();
     }
 
 	vector<char *> hlwords;
@@ -897,7 +900,7 @@ namespace game
     void toserver(char *text) { conoutf(CON_CHAT, (player1->state == CS_SPECTATOR)? "\f7%s\f4:\f0 %s": "\f1%s\f4:\f0 %s", colorname(player1), highlighttext(text)); addmsg(N_TEXT, "rcs", player1, text); }
     COMMANDN(say, toserver, "C");
 
-    void sayteam(char *text) { conoutf(CON_TEAMCHAT, (player1->state == CS_SPECTATOR)? "\f7%s\f4:\f1 %s": "\f1%s\f4:\f1 %s", colorname(player1), highlighttext(text)); addmsg(N_SAYTEAM, "rcs", player1, text); }
+    void sayteam(char *text) { conoutf(CON_TEAMCHAT, (player1->state == CS_SPECTATOR)? "\f7%s\f4:\f1 %s": "\f1%s\f4:\f1 %s", colorname(player1), highlighttext(text)); addmsg(N_SAYTEAM, "rcs", player1, text); cdemo::sayteam(text); }
     COMMAND(sayteam, "C");
 
     ICOMMAND(servcmd, "C", (char *cmd), addmsg(N_SERVCMD, "rs", cmd));
@@ -962,7 +965,7 @@ namespace game
         if(d->state != CS_ALIVE && d->state != CS_EDITING) return;
         packetbuf q(100, reliable ? ENET_PACKET_FLAG_RELIABLE : 0);
         sendposition(d, q);
-        sendclientpacket(q.finalize(), 0);
+        sendclientpacket(cdemo::packet(0, q.finalize()), 0);
     }
 
     void sendpositions()
@@ -980,7 +983,7 @@ namespace game
                     if((d == player1 || d->ai) && (d->state == CS_ALIVE || d->state == CS_EDITING))
                         sendposition(d, q);
                 }
-                sendclientpacket(q.finalize(), 0);
+                sendclientpacket(cdemo::packet(0, q.finalize()), 0);
                 break;
             }
         }
@@ -1149,7 +1152,7 @@ namespace game
             d->lastupdate = totalmillis;
         }
     }
-	
+
     void parsepositions(ucharbuf &p)
     {
         int type;
@@ -1251,7 +1254,7 @@ namespace game
                 neterr("type");
                 return;
         }
-    }
+   }
 
     void parsestate(fpsent *d, ucharbuf &p, bool resume = false)
     {
@@ -1284,66 +1287,15 @@ namespace game
     }
 
     extern int deathscore;
-	
-	VARHSC(recordlocaldemo, 0, 0, 1);
-    stream *demotmp = NULL, *demorecord = NULL;
-
-	void enddemorecord()
-    {
-        if(!demorecord) return;
-        DELETEP(demorecord);
-		if(demotmp) DELETEP(demotmp);
-    }
-
-    void writedemo(int chan, void *data, int len)
-    {
-        if(!demorecord) return;
-        int stamp[3] = { gamemillis, chan, len };
-        lilswap(stamp, 3);
-        demorecord->write(stamp, sizeof(stamp));
-        demorecord->write(data, len);
-    }
-
-    void recordpacket(int chan, void *data, int len)
-    {
-        writedemo(chan, data, len);
-    }
-
-    void setupdemorecord()
-    {
-        if(!recordlocaldemo) return; // || !m_mp(gamemode) || m_edit)
-
-        demotmp = opentempfile("demorecord_2.dmo", "w+b");
-        if(!demotmp) return;
-
-        stream *f = opengzfile(NULL, "wb", demotmp);
-        if(!f) { DELETEP(demotmp); return; }
-
-        demorecord = f;
-
-        demoheader hdr;
-        memcpy(hdr.magic, DEMO_MAGIC, sizeof(hdr.magic));
-        hdr.version = DEMO_VERSION;
-        hdr.protocol = PROTOCOL_VERSION;
-        lilswap(&hdr.version, 2);
-        demorecord->write(&hdr, sizeof(demoheader));
-
-		/*if (addwelcome)
-		{
-			packetbuf p(MAXTRANS, ENET_PACKET_FLAG_RELIABLE);
-			welcomepacket(p);
-			writedemo(1, p.buf, p.len);
-		}*/
-    }
 
 #include <curl/curl.h>
 #include "translate.h"
 	
     void parsemessages(int cn, fpsent *d, ucharbuf &p)
     {
-        static char text[MAXTRANS];
+		static char text[MAXTRANS];
         int type;
-        bool mapchanged = false, demopacket = false;
+        bool mapchanged = false, demopacket = false, welcomepacket = false, skipcdemorecord = false;
 
         while(p.remaining()) switch(type = getint(p))
         {
@@ -1351,6 +1303,7 @@ namespace game
 
             case N_SERVINFO:                   // welcome messsage from the server
             {
+                skipcdemorecord = true;
                 int mycn = getint(p), prot = getint(p);
                 if(prot!=PROTOCOL_VERSION)
                 {
@@ -1369,7 +1322,9 @@ namespace game
 
             case N_WELCOME:
             {
+                connected = true;
                 notifywelcome();
+                welcomepacket = true;
                 break;
             }
 
@@ -1443,12 +1398,13 @@ namespace game
             }
 
             case N_MAPCHANGE:
+                cdemo::stop();
                 getstring(text, p);
-				//enddemorecord();
                 changemapserv(text, getint(p));
                 mapchanged = true;
                 if(getint(p)) entities::spawnitems();
                 else senditemstoserver = false;
+                if(!welcomepacket && cdemo::cdemoauto) cdemo::setup();
                 break;
 
             case N_FORCEDEATH:
@@ -1811,6 +1767,7 @@ namespace game
 
             case N_PONG:
                 addmsg(N_CLIENTPING, "i", player1->ping = (player1->ping*5+totalmillis-getint(p))/6);
+                skipcdemorecord = true;
                 break;
 
             case N_CLIENTPING:
@@ -1829,6 +1786,7 @@ namespace game
 
             case N_SENDDEMOLIST:
             {
+                skipcdemorecord = true;
                 int demos = getint(p);
                 if(demos <= 0) conoutf("no demos available");
                 else loopi(demos)
@@ -1975,6 +1933,7 @@ namespace game
 
             case N_AUTHCHAL:
             {
+                skipcdemorecord = true;
                 getstring(text, p);
                 authkey *a = findauthkey(text);
                 uint id = (uint)getint(p);
@@ -2005,13 +1964,16 @@ namespace game
 
             case N_SERVCMD:
                 getstring(text, p);
+                skipcdemorecord = true;
                 break;
 
             default:
                 neterr("type", cn < 0);
                 return;
         }
-    }
+        if(welcomepacket && cdemo::cdemoauto) cdemo::setup();
+        if(!skipcdemorecord) cdemo::packet(1, p);
+   }
 
     void receivefile(packetbuf &p)
     {
@@ -2055,11 +2017,11 @@ namespace game
     void parsepacketclient(int chan, packetbuf &p)   // processes any updates from the server
     {
         if(p.packet->flags&ENET_PACKET_FLAG_UNSEQUENCED) return;
-		if (chan < 2) recordpacket(chan, p.buf, p.maxlen);
         switch(chan)
         {
             case 0:
                 parsepositions(p);
+                cdemo::packet(0, p);
                 break;
 
             case 1:
@@ -2174,3 +2136,71 @@ namespace game
     COMMAND(gotosel, "");
 }
 
+namespace cdemo{
+
+using namespace game;
+
+void ctfinit(ucharbuf& p){
+    typedef ctfclientmode::flag flag;
+    putint(p, N_INITFLAGS);
+    loopk(2) putint(p, ctfmode.scores[k]);
+    putint(p, ctfmode.flags.length());
+    loopv(ctfmode.flags){
+        flag &f = ctfmode.flags[i];
+        putint(p, f.version);
+        putint(p, f.spawnindex);
+        putint(p, f.owner ? int(f.owner->clientnum) : -1);
+        putint(p, f.vistime ? 0 : 1);
+        if(!f.owner){
+            putint(p, f.droptime ? 1 : 0);
+            if(f.droptime) loopi(3) putint(p, int(f.droploc[i]*DMF));
+        }
+    }
+}
+
+void captureinit(ucharbuf& p){
+    typedef captureclientmode::score score;
+    typedef captureclientmode::baseinfo baseinfo;
+    loopv(capturemode.scores){
+        score &cs = capturemode.scores[i];
+        putint(p, N_BASESCORE);
+        putint(p, -1);
+        sendstring(cs.team, p);
+        putint(p, cs.total);
+    }
+    putint(p, N_BASES);
+    putint(p, capturemode.bases.length());
+    loopv(capturemode.bases){
+        baseinfo &b = capturemode.bases[i];
+        putint(p, min(max(b.ammotype, 1), I_CARTRIDGES+1));
+        sendstring(b.owner, p);
+        sendstring(b.enemy, p);
+        putint(p, b.converted);
+        putint(p, b.ammo);
+    }
+}
+
+void collectinit(ucharbuf& p){
+    typedef collectclientmode::token token;
+    putint(p, N_INITTOKENS);
+    loopk(2) putint(p, collectmode.scores[k]);
+    putint(p, collectmode.tokens.length());
+    loopv(collectmode.tokens)
+    {
+        token &t = collectmode.tokens[i];
+        putint(p, t.id);
+        putint(p, t.team);
+        putint(p, t.yaw);
+        putint(p, int(t.o.x*DMF));
+        putint(p, int(t.o.y*DMF));
+        putint(p, int(t.o.z*DMF));
+    }
+    loopv(players) if(players[i]->state == CS_ALIVE && players[i]->tokens > 0)
+    {
+        putint(p, players[i]->clientnum);
+        putint(p, players[i]->tokens);
+    }
+    putint(p, -1);
+}
+
+}

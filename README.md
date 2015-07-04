@@ -20,7 +20,7 @@ Currently binaries are only available for the Windows platform, and I haven't te
 	7. Show teamkills.
 	8. Show spectators' pings.
 	9. Show country.
-	10. Show damage delivered.
+	10. Show damage dealt.
 	11. Different color for players using auth.
 	12. Highlight friends.
 - Server browser:
@@ -44,6 +44,18 @@ Currently binaries are only available for the Windows platform, and I haven't te
 - Weapons:
 	1. Option to make rifle shots look like lightning.
 	2. Option to make pistol and chaingun shots blue.
+- Client side demos:
+	
+	Client side demo recording is copied from the (ComEd client)[https://github.com/sauerworld/community-edition].
+	Commands and variables:
+	
+	1. "/cdemoauto [0|1|2]" 0 = disable, 1 = ask to keep demo everytime, 2 = always keep demo.
+	2. "/cdemostart [name]" to start recording demo.
+	3. "/cdemostop" to stop recording demo.
+	4. "/say_nocdemo [text]" to say something that won't get recorded in the demo.
+	5. "/cdemodir [name]" to specify the demo directory ("demos" by default).
+	6. "/demo_ [name]" to play a demo from the demo directory (supports autocompletion).
+	
 - Binds:
 	1. Auto sorry/np.
 	2. Quick team chat.
@@ -84,7 +96,7 @@ Currently binaries are only available for the Windows platform, and I haven't te
 
 ## Upcoming
 
-- Auto record and search through demos.
+- Search through demos.
 - Player name auto-complete.
 - Event system.
 - Cubescript vectors.

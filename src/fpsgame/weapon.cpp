@@ -1,5 +1,6 @@
 // weapon.cpp: all shooting and effects code, projectile management
 #include "game.h"
+#include "cdemo.h"
 
 namespace game
 {
@@ -239,8 +240,11 @@ namespace game
                     explode(bnc.local, bnc.owner, bnc.o, NULL, qdam, GUN_GL);
                     adddecal(DECAL_SCORCH, bnc.o, vec(0, 0, 1), guns[GUN_GL].exprad/2);
                     if(bnc.local)
+					{
                         addmsg(N_EXPLODE, "rci3iv", bnc.owner, lastmillis-maptime, GUN_GL, bnc.id-maptime,
                                 hits.length(), hits.length()*sizeof(hitmsg)/sizeof(int), hits.getbuf());
+                        cdemo::explodefx(bnc.owner->clientnum, GUN_GL, bnc.id-maptime);
+					}
                 }
                 delete bouncers.remove(i--);
             }
@@ -550,8 +554,11 @@ namespace game
             if(exploded)
             {
                 if(p.local)
+				{
                     addmsg(N_EXPLODE, "rci3iv", p.owner, lastmillis-maptime, p.gun, p.id-maptime,
                             hits.length(), hits.length()*sizeof(hitmsg)/sizeof(int), hits.getbuf());
+                    cdemo::explodefx(p.owner->clientnum, p.gun, p.id-maptime);
+				}
                 projs.remove(i--);
             }
             else p.o = v;
@@ -806,7 +813,8 @@ namespace game
                    (int)(from.x*DMF), (int)(from.y*DMF), (int)(from.z*DMF),
                    (int)(to.x*DMF), (int)(to.y*DMF), (int)(to.z*DMF),
                    hits.length(), hits.length()*sizeof(hitmsg)/sizeof(int), hits.getbuf());
-        }
+           cdemo::shotfx(d->clientnum, d->gunselect, lastmillis-maptime, from, to);
+       }
 
 		d->gunwait = guns[d->gunselect].attackdelay;
 		if(d->gunselect == GUN_PISTOL && d->ai) d->gunwait += int(d->gunwait*(((101-d->skill)+rnd(111-d->skill))/100.f));

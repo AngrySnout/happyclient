@@ -47,8 +47,9 @@ struct collectclientmode : clientmode
     {
         int id, team, droptime;
         vec o;
+		int yaw;
 #ifdef SERVMODE
-        int yaw, dropper;
+        int dropper;
 #else
         entitylight light;
 #endif
@@ -58,6 +59,7 @@ struct collectclientmode : clientmode
         void reset()
         {
             o = vec(0, 0, 0);
+			yaw = 0;
             team = 0;
 #ifdef SERVMODE
             dropper = -1;
@@ -109,11 +111,12 @@ struct collectclientmode : clientmode
 #ifdef SERVMODE
     token &droptoken(const vec &o, int yaw, int team, int droptime, int dropper)
 #else
-    token &droptoken(int id, const vec &o, int team, int droptime)
+    token &droptoken(int id, const vec &o, int yaw, int team, int droptime)
 #endif
     {
         token &t = tokens.add();
         t.o = o;
+		t.yaw = yaw;
         t.team = team;
         t.droptime = droptime;
 #ifdef SERVMODE
@@ -614,7 +617,7 @@ struct collectclientmode : clientmode
             loopk(3) o[k] = getint(p)/DMF;
             if(p.overread()) break;
             o = movetoken(o, yaw);
-            if(o.z >= 0) droptoken(id, o, team, lastmillis);
+            if(o.z >= 0) droptoken(id, o, yaw, team, lastmillis);
         }
         for(;;)
         {
@@ -670,7 +673,7 @@ struct collectclientmode : clientmode
     {
         vec pos = movetoken(o, yaw);
         if(pos.z < 0) return NULL;
-        token &t = droptoken(id, pos, team, lastmillis);
+        token &t = droptoken(id, pos, team, yaw, lastmillis);
         lightreaching(vec(t.o).add(vec(0, 0, TOKENHEIGHT)), t.light.color, t.light.dir, true); 
         if(!n) playsound(S_ITEMSPAWN, d ? &d->o : &pos);
         if(d) 

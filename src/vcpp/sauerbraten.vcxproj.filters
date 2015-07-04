@@ -175,6 +175,9 @@
     <ClCompile Include="..\engine\irc.cpp">
       <Filter>Engine\cs</Filter>
     </ClCompile>
+    <ClCompile Include="..\fpsgame\cdemo.cpp">
+      <Filter>FPS</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\fpsgame\ai.h">
@@ -301,6 +304,9 @@
       <Filter>Engine\cs</Filter>
     </ClInclude>
     <ClInclude Include="..\fpsgame\translate.h">
+      <Filter>FPS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\fpsgame\cdemo.h">
       <Filter>FPS</Filter>
     </ClInclude>
   </ItemGroup>

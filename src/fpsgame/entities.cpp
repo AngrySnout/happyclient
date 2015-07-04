@@ -1,4 +1,7 @@
 #include "game.h"
+#ifndef STANDALONE
+#include "cdemo.h"
+#endif
 
 namespace entities
 {
@@ -221,7 +224,7 @@ namespace entities
             putint(p, d->clientnum);
             putint(p, tp);
             putint(p, td);
-            sendclientpacket(p.finalize(), 0);
+            sendclientpacket(cdemo::packet(0, p.finalize()), 0);
             flushclient();
         }
     }
@@ -246,7 +249,7 @@ namespace entities
             putint(p, N_JUMPPAD);
             putint(p, d->clientnum);
             putint(p, jp);
-            sendclientpacket(p.finalize(), 0);
+            sendclientpacket(cdemo::packet(0, p.finalize()), 0);
             flushclient();
         }
     }

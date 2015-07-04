@@ -107,6 +107,7 @@ namespace game
 	extern void saveclearfriendslist();
 	extern bool isfriendip(uint ip);
 	extern int getprotocolversion();
+    extern void concatgamedesc(char* name, size_t maxlen=MAXSTRLEN);
 } 
  
 namespace server
