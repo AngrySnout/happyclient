@@ -7,8 +7,6 @@ I tried a number of Sauerbraten clients, and found that they are either lacking 
 
 Currently binaries are only available for the Windows platform, and I haven't tested the client on other platforms. I'd appreciate it if someone is willing to do testing and to contribute binaries for other platforms.
 
-**Latest release:** V0.9.7 (Alpha)
-
 
 ## Features
 
