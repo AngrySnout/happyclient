@@ -132,8 +132,8 @@ public:
 	{
 		len = 0;
 		curlh = handle;
-		cap = 1000;
-		msg = new char[1000];
+		cap = 10000;
+		msg = new char[10000];
 		tolang = newstring(to? to: trans_to);
 
 		type = TRANS_YANDEX;
@@ -195,8 +195,8 @@ public:
 	{
 		len = 0;
 		curlh = handle;
-		cap = 1000;
-		msg = new char[1000];
+		cap = 10000;
+		msg = new char[10000];
 		fromlang = newstring(from);
 		tolang = newstring(to? to: trans_to);
 

@@ -66,7 +66,7 @@ Currently binaries are only available for the Windows platform, and I haven't te
 	4. ``/say_nocdemo [text]`` to say something that won't get recorded in the demo.
 	5. ``/cdemodir [name]`` to specify the demo directory ("demos" by default).
 	6. ``/demo_ [name]`` to play a demo from the demo directory (supports autocompletion).
-	7. ``/demotime [minutes_left] [seconds_left]`` and ``/demoskip [minutes] [seconds]`` to traverse a demo (only work forward).
+	7. ``/demotime [minutes_left] [seconds_left]`` and ``/demoskip [minutes] [seconds]`` to traverse a demo (work both forward and backwards).
 
 
 - **CubeScript:**
@@ -104,7 +104,6 @@ Currently binaries are only available for the Windows platform, and I haven't te
 ## Upcoming
 
 - Search through demos.
-- Traverse demos backwards.
 - Event system.
 - HTTP request support.
 

@@ -73,7 +73,7 @@ void setup(const char* name_)
        demostream = opengzfile(name, "w+b");
        if(!demostream) return;
 
-       starttime = totalmillis;
+       starttime = lastmillis;
        demoheader hdr;
        memcpy(hdr.magic, DEMO_MAGIC, sizeof(hdr.magic));
        hdr.version = DEMO_VERSION;

@@ -1210,8 +1210,27 @@ namespace server
         lilswap(&nextplayback, 1);
     }
 
-	ICOMMAND(demotime, "ii", (int *m, int *s), { demomillis = (m_overtime ? 15 : 10)*60000 - (*m*60 + *s)*1000; sendf(-1, 1, "rii", N_TIMEUP, (*m*60 + *s)); });
-	ICOMMAND(demoskip, "ii", (int *m, int *s), { demomillis = (*m*60 + *s)*1000; sendf(-1, 1, "rii", N_TIMEUP, (m_overtime ? 15 : 10)*60 - (*m*60 + *s)); });
+	int jumptoonce = -1;
+
+	void changemap(const char *s, int mode);
+
+	void jumptotime(int secs)
+	{
+		if (secs*1000 < demomillis && jumptoonce < 0)
+		{
+			jumptoonce = secs;
+			changemap(smapname, gamemode);
+		}
+		else
+		{
+			jumptoonce = -1;
+			demomillis = secs*1000;
+			sendf(-1, 1, "rii", N_TIMEUP, (m_overtime ? 15 : 10)*60 - secs);
+		}
+	}
+
+	ICOMMAND(demotime, "ii", (int *m, int *s), { jumptotime((m_overtime ? 15 : 10)*60 - (*m*60 + *s)); });
+	ICOMMAND(demoskip, "ii", (int *m, int *s), { jumptotime(*m*60 + *s); });
 
     void readdemo()
     {
@@ -1237,6 +1256,7 @@ namespace server
             }
             packet->data[0] = N_DEMOPACKET;
             sendpacket(-1, chan, packet);
+			if (jumptoonce >= 0) jumptotime(jumptoonce);
             if(!packet->referenceCount) enet_packet_destroy(packet);
             if(!demoplayback) break;
             if(demoplayback->read(&nextplayback, sizeof(nextplayback))!=sizeof(nextplayback))
