@@ -1,6 +1,6 @@
 # [happy] Sauerbraten Client
 
-A custom client for the open-source game [Cube 2: Sauerbraten](http://sauerbraten.org/).
+A custom client for the open-source game [Cube 2: Sauerbraten](http://sauerbraten.org/) Collect Edition.
 
 I tried a number of Sauerbraten clients, and found that they are either lacking in features, or are somewhat bloated and confusing. So, I decided to make a new one.
 [happy] Sauerbraten Client is meant to be a simple to use, feature rich client, that has everything you'd expect from popular clients and more, while keeping almost everything optional in order to keep the experience as close as possible to the original client.
