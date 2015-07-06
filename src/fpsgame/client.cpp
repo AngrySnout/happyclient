@@ -1067,6 +1067,7 @@ namespace game
 				if (globalwhois) whois(cn);
 			}
 		}
+		cdemo::extpacket(p);
 		return true;
 	}
 
@@ -1963,7 +1964,16 @@ namespace game
             }
 
             case N_SERVCMD:
-                getstring(text, p);
+				if (demopacket)
+				{
+					static ENetAddress eaddr;
+					int protocol = getint(p);
+					if (protocol != HSC_PROTOCOL_VERSION) break;
+					int type = getint(p);
+					if (type == 0) extplayerresponse(p, eaddr, 0);
+					else if (type == 1) getstring(servinfo, p, sizeof(servinfo));
+				}
+				else getstring(text, p);
                 skipcdemorecord = true;
                 break;
 

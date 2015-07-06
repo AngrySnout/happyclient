@@ -13,6 +13,7 @@ void collectinit(ucharbuf& p);
 
 ENetPacket* packet(int chan, const ENetPacket* p); //N_POS, N_JUMPPAD, N_TELEPORT, server->client catchall
 void packet(int chan, const ucharbuf& p);
+void extpacket(const ucharbuf& o);
 void addmsghook(int type, int cn, const ucharbuf& p); //save packets that server doesn't send back
 //packets that change format between client->server and server->client
 void sayteam(const char* msg);

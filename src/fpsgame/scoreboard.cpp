@@ -158,6 +158,7 @@ namespace game
                 else g.titlef("%s:%d", 0xFFFF80, NULL, hostname, address->port);
             }
         }
+		else if (showservinfo && demoplayback && servinfo && servinfo[0]) g.titlef("%.25s", 0xFFFF80, NULL, servinfo);
      
         g.pushlist();
         g.spring();

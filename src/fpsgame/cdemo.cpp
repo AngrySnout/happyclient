@@ -181,6 +181,11 @@ void setup(const char* name_)
        if(m_capture) captureinit(p);
        if(m_collect) collectinit(p);
 
+	   putint(p, N_SERVCMD);
+	   putint(p, HSC_PROTOCOL_VERSION);
+	   putint(p, 1);
+	   sendstring(game::servinfo, p);
+
        putint(p, N_SERVMSG);
        string info;
        if(name_ && name_[0]) formatstring(info)("original filename: %s.dmo (canonical: %s.dmo)", name, defname);
@@ -188,7 +193,7 @@ void setup(const char* name_)
        sendstring(info, p);
        packet(1, p);
 
-       ::executestr(keep_client_demo_gui);
+	   ::executestr(keep_client_demo_gui);
        conoutf("\f3recording client demo");
 
 }
@@ -203,6 +208,17 @@ void packet(int chan, const ucharbuf& p)
 {
        if(!demostream) return;
        writedemo(chan, p.buf, p.len);
+}
+
+void extpacket(const ucharbuf& o)
+{
+       if(!demostream) return;
+       p.len = 0;
+	   putint(p, N_SERVCMD);
+	   putint(p, HSC_PROTOCOL_VERSION);
+	   putint(p, 0);
+	   p.put(o.buf, o.len);
+       packet(1, p);
 }
 
 static int skiptextonce = 0;
