@@ -63,8 +63,9 @@ Currently binaries are only available for the Windows platform, and I haven't te
 	3. ``/cdemostop`` to stop recording demo.
 	4. ``/say_nocdemo [text]`` to say something that won't get recorded in the demo.
 	5. ``/cdemodir [name]`` to specify the demo directory ("demos" by default).
-	6. ``/demo_ [name]`` to play a demo from the demo directory (supports autocompletion).
-	7. ``/demotime [minutes_left] [seconds_left]`` and ``/demoskip [minutes] [seconds]`` to traverse a demo (work both forward and backwards).
+	6. ``/cdemoteamchat [1|0]`` enable or disable recording of team chat.
+	7. ``/demo_ [name]`` to play a demo from the demo directory (supports autocompletion).
+	8. ``/demotime [minutes_left] [seconds_left]`` and ``/demoskip [minutes] [seconds]`` to traverse a demo (work both forward and backwards).
 
 
 - **CubeScript:**
@@ -104,13 +105,6 @@ Currently binaries are only available for the Windows platform, and I haven't te
 - Search through demos.
 - Event system.
 - HTTP request support.
-
-
-## Scraped
-
-- ~~Player name auto-complete.~~
-- ~~Cubescript vectors.~~
-- ~~Anti-cheat file verification system with closed source executable.~~
 
 
 ## Bugs/problems/suggestions:
