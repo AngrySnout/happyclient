@@ -21,10 +21,6 @@
 #ifndef GEOIP_H
 #define GEOIP_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <sys/types.h>
 #if !defined(_WIN32)
 #include <sys/socket.h>
@@ -32,8 +28,7 @@ extern "C" {
 #include <arpa/inet.h>
 #else /* !defined(_WIN32) */
 #include <winsock2.h>
-//#include <ws2tcpip.h>
-#define snprintf _snprintf
+#include <ws2tcpip.h>
 #define FILETIME_TO_USEC(ft)                      \
     (((unsigned __int64)ft.dwHighDateTime << 32 | \
       ft.dwLowDateTime) / 10)
@@ -45,14 +40,16 @@ extern "C" {
 #include <sys/types.h> /* for fstat */
 #include <sys/stat.h>  /* for fstat */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define SEGMENT_RECORD_LENGTH 3
 #define LARGE_SEGMENT_RECORD_LENGTH 4
 #define STANDARD_RECORD_LENGTH 3
 #define ORG_RECORD_LENGTH 4
 #define MAX_RECORD_LENGTH 4
 #define NUM_DB_TYPES (38 + 1)
-
-#define ssize_t long
 
 /* 128 bit address in network order */
 typedef struct in6_addr geoipv6_t;
@@ -104,6 +101,7 @@ typedef enum {
     GEOIP_CHECK_CACHE = 2,
     GEOIP_INDEX_CACHE = 4,
     GEOIP_MMAP_CACHE = 8,
+    GEOIP_SILENCE = 16,
 } GeoIPOptions;
 
 typedef enum {
@@ -160,8 +158,7 @@ typedef enum {
     GEOIP_CORPORATE_SPEED = 3,
 } GeoIPNetspeedValues;
 
-
-#if defined(_WIN32)
+#if defined(_WIN32) && !defined(__MINGW32__)
 #ifdef GEOIP_EXPORTS
 #define GEOIP_API __declspec(dllexport)
 #define GEOIP_DATA __declspec(dllexport)
