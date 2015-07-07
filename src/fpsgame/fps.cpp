@@ -1205,7 +1205,7 @@ namespace game
 		strftime(buff, sizeof(buff), "%Y-%m-%d-%H-%M-%S__", timeinfo);
 		concatstring(name, buff, maxlen);
 
-		formatstring(buff)("%s___%s__", server::modename(gamemode), getclientmap());
+		formatstring(buff)("%s__%s__", server::modename(gamemode), getclientmap());
 		char* ch=buff;
 		while((ch=strpbrk(ch, " /\\:?<>\"|*"))) *ch='_';
 		concatstring(name, buff, maxlen);

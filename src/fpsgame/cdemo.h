@@ -24,7 +24,8 @@ void shotfx(int cn, int gun, int id, const vec& from, const vec& to);
 
 void stop();
 
-extern int cdemoauto;   
+extern int cdemoauto;
+extern int cdemoteamchat;
 void keepdemo(int *keep);
 
 }

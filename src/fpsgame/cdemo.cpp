@@ -181,17 +181,18 @@ void setup(const char* name_)
        if(m_capture) captureinit(p);
        if(m_collect) collectinit(p);
 
-	   putint(p, N_SERVCMD);
-	   putint(p, HSC_PROTOCOL_VERSION);
-	   putint(p, 1);
-	   sendstring(game::servinfo, p);
-
        putint(p, N_SERVMSG);
        string info;
        if(name_ && name_[0]) formatstring(info)("original filename: %s.dmo (canonical: %s.dmo)", name, defname);
        else formatstring(info)("original filename: %s", name);
        sendstring(info, p);
        packet(1, p);
+
+	   p.len = 0;
+	   putint(p, HSC_PROTOCOL_VERSION);
+	   putint(p, 1);
+	   sendstring(game::servinfo, p);
+       packet(3, p);
 
 	   ::executestr(keep_client_demo_gui);
        conoutf("\f3recording client demo");
@@ -214,11 +215,10 @@ void extpacket(const ucharbuf& o)
 {
        if(!demostream) return;
        p.len = 0;
-	   putint(p, N_SERVCMD);
 	   putint(p, HSC_PROTOCOL_VERSION);
 	   putint(p, 0);
 	   p.put(o.buf, o.len);
-       packet(1, p);
+       packet(3, p);
 }
 
 static int skiptextonce = 0;
@@ -264,6 +264,7 @@ void sayteam(const char* msg)
 {
        if(!demostream) return;
        p.len = 0;
+	   putint(p, N_SAYTEAM);
        putint(p, game::player1->clientnum);
        sendstring(msg, p);
        packet(1, p);
@@ -319,6 +320,7 @@ VARHSC(cdemoauto, 0, 0, 2);
 COMMANDN(cdemostart, setup, "s");
 COMMANDN(cdemostop, stop, "");
 ICOMMAND(say_nocdemo, "s", (char* s), skiptextonce = 1; game::toserver(s); );
+VARHSC(cdemoteamchat, 0, 1, 1);
 
 void keepdemo(int *keep)
 {

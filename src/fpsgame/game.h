@@ -286,7 +286,8 @@ static const int msgsizes[] =               // size inclusive message token, 0 f
 #define PROTOCOL_VERSION 259            // bump when protocol changes
 #define DEMO_VERSION 1                  // bump when demo format changes
 #define DEMO_MAGIC "SAUERBRATEN_DEMO"
-#define HSC_PROTOCOL_VERSION 1            // bump when protocol changes
+#define HSC_PROTOCOL_VERSION 1
+#define HSC_MAGIC "HAPPYSAUER"
 
 struct demoheader
 {

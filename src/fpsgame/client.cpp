@@ -900,7 +900,7 @@ namespace game
     void toserver(char *text) { conoutf(CON_CHAT, (player1->state == CS_SPECTATOR)? "\f7%s\f4:\f0 %s": "\f1%s\f4:\f0 %s", colorname(player1), highlighttext(text)); addmsg(N_TEXT, "rcs", player1, text); }
     COMMANDN(say, toserver, "C");
 
-    void sayteam(char *text) { conoutf(CON_TEAMCHAT, (player1->state == CS_SPECTATOR)? "\f7%s\f4:\f1 %s": "\f1%s\f4:\f1 %s", colorname(player1), highlighttext(text)); addmsg(N_SAYTEAM, "rcs", player1, text); cdemo::sayteam(text); }
+    void sayteam(char *text) { conoutf(CON_TEAMCHAT, (player1->state == CS_SPECTATOR)? "\f7%s\f4:\f1 %s": "\f1%s\f4:\f1 %s", colorname(player1), highlighttext(text)); addmsg(N_SAYTEAM, "rcs", player1, text); if (cdemo::cdemoteamchat) cdemo::sayteam(text); }
     COMMAND(sayteam, "C");
 
     ICOMMAND(servcmd, "C", (char *cmd), addmsg(N_SERVCMD, "rs", cmd));
@@ -1386,6 +1386,7 @@ namespace game
 
             case N_SAYTEAM:
             {
+				if (!cdemo::cdemoteamchat) skipcdemorecord = true;
                 int tcn = getint(p);
                 fpsent *t = getclient(tcn);
                 getstring(text, p);
@@ -1964,20 +1965,12 @@ namespace game
             }
 
             case N_SERVCMD:
-				if (demopacket)
-				{
-					static ENetAddress eaddr;
-					int protocol = getint(p);
-					if (protocol != HSC_PROTOCOL_VERSION) break;
-					int type = getint(p);
-					if (type == 0) extplayerresponse(p, eaddr, 0);
-					else if (type == 1) getstring(servinfo, p, sizeof(servinfo));
-				}
-				else getstring(text, p);
+				getstring(text, p);
                 skipcdemorecord = true;
                 break;
 
             default:
+				conoutf("%d", type);
                 neterr("type", cn < 0);
                 return;
         }
@@ -2041,6 +2034,18 @@ namespace game
             case 2:
                 receivefile(p);
                 break;
+
+			case 3:
+			{
+				static ENetAddress eaddr;
+				int ptype = getint(p);
+				if (ptype != N_DEMOPACKET) break;
+				int protocol = getint(p);
+				if (protocol != HSC_PROTOCOL_VERSION) break;
+				int type = getint(p);
+				if (type == 0) extplayerresponse(p, eaddr, 0);
+				else if (type == 1) getstring(servinfo, p, sizeof(servinfo));
+			}
         }
     }
 
