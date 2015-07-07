@@ -1,2 +1,12 @@
 @ECHO OFF
-start bin\sauerbraten_hsc.exe "-q$HOME\My Games\Sauerbraten" "-glogs/log_$DATE.txt" %*
+
+set SAUER_BIN=bin
+
+IF /I "%PROCESSOR_ARCHITECTURE%" == "amd64" (
+    set SAUER_BIN=bin64
+)
+IF /I "%PROCESSOR_ARCHITEW6432%" == "amd64" (
+    set SAUER_BIN=bin64
+)
+
+start %SAUER_BIN%\sauerbraten_hsc.exe "-q$HOME\My Games\Sauerbraten" "-glogs/log_$DATE.txt" %*
