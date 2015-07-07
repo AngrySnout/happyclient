@@ -5,7 +5,7 @@ A custom client for the open-source game [Cube 2: Sauerbraten](http://sauerbrate
 I tried a number of Sauerbraten clients, and found that they are either lacking in features, or are somewhat bloated and confusing. So, I decided to make a new one.
 [happy] Sauerbraten Client is meant to be a simple to use, feature rich client, that has everything you'd expect from popular clients and more, while keeping almost everything optional in order to keep the experience as close as possible to the original client.
 
-Currently binaries are only available for the Windows platform, and I haven't tested the client on other platforms. I'd appreciate it if someone is willing to do testing and to contribute binaries for other platforms.
+Currently binaries are only available for the Windows platform (both x86 and x64), and I haven't tested the client on other platforms. I'd appreciate it if someone is willing to do testing and to contribute binaries for other platforms.
 
 
 ## Features
