@@ -2,11 +2,12 @@
 
 A custom client for the open-source game [Cube 2: Sauerbraten](http://sauerbraten.org/) Collect Edition.
 
-I tried a number of Sauerbraten clients, and found that they are either lacking in features, or are somewhat bloated and confusing. So, I decided to make a new one.
+I tried a number of different Sauerbraten clients, but I could never get used to them. So, I decided to make a new one.
 [happy] Sauerbraten Client is meant to be a simple to use, feature rich client, that has everything you'd expect from popular clients and more, while keeping almost everything optional in order to keep the experience as close as possible to the original client.
 
 Currently binaries are only available for the Windows platform (both x86 and x64), and I haven't tested the client on other platforms. I'd appreciate it if someone is willing to do testing and to contribute binaries for other platforms.
 
+If for some reason you don't want to use this client, or simply want to try another one, you should definitely check out [Sauerbraten Community Edition](http://comed.sauerworld.org/).
 
 ## Features
 
@@ -105,6 +106,7 @@ Currently binaries are only available for the Windows platform (both x86 and x64
 - Search through demos.
 - Event system.
 - HTTP request support.
+- Demo playback cinematics.
 
 
 ## Bugs/problems/suggestions:
