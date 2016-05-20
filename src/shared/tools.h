@@ -161,6 +161,17 @@ struct stringformatter
 #define loopvk(v)   for(int k = 0; k<(v).length(); k++)
 #define loopvrev(v) for(int i = (v).length()-1; i>=0; i--)
 
+inline char *strlwr(char *str)
+{
+	unsigned char *p = (unsigned char *)str;
+	while (*p) {
+		*p = tolower(*p);
+		p++;
+	}
+	return str;
+}
+
+
 template <class T>
 struct databuf
 {

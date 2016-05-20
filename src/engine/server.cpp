@@ -198,8 +198,8 @@ void cleanupserver()
     if(pongsock != ENET_SOCKET_NULL) enet_socket_destroy(pongsock);
     if(lansock != ENET_SOCKET_NULL) enet_socket_destroy(lansock);
     pongsock = lansock = ENET_SOCKET_NULL;
-
-	irccleanup();
+	
+	//irccleanup();
 }
 
 void process(ENetPacket *packet, int sender, int chan);

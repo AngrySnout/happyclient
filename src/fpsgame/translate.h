@@ -31,7 +31,7 @@ void url_encode(char *dest, const uchar *src)
 		else
 		{
 			*dest = '%';
-			itoa(c, dest+1, 16);
+			sprintf(dest+1, "%x", c);
 			dest += 3;
 		}
 
