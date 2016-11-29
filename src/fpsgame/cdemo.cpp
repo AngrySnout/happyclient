@@ -121,6 +121,7 @@ void setup(const char* name_)
        {
                putint(p, N_PAUSEGAME);
                putint(p, 1);
+               putint(p, -1);
        }
     if(game::gamespeed != 100)
     {
